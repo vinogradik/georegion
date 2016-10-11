@@ -1,0 +1,80 @@
+body {
+   background-color: #ccdcff;
+}
+
+h3 p legend {
+	color: #00081a;
+	font-weight: 400; 
+}
+h3 {
+   margin-left: 20px;
+}
+legend {
+	font-size: large;
+}
+fieldset {
+	background-color: #b3cbff;
+	%border-width: 10px;	
+	%border
+}
+.error {
+	color: red;
+	%background-color: #80a8ff;
+	opacity: 1;
+}
+tr {
+	background-color: #b3cbff;
+	color: black;
+}
+input {
+	width = 10%;
+}
+select {
+	margin = 10px;
+}
+input[type = submit] {
+	#background-color: #e6eeff;
+	#padding: 5px;
+	margin: 10px;
+	#border-radius: 6px;
+}
+input[type=number]{
+	#background-color: black;
+	#border-radius: 4px;
+	width: 100;
+}
+table {
+	width: 100%;
+}
+
+a {
+	color: #00081a;
+	text-decoration: none;
+	background-color: #b3cbff;
+}
+p {
+	margin-top: 4px;
+	margin-bottom: 0;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.modal {
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('2.gif') 
+                50% 50% 
+                no-repeat;
+}

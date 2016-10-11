@@ -1,0 +1,142 @@
+	<html lang = ru>
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title> База Данных </title>
+   <script src="jquery-3.1.1.js"></script>
+   <script src="genQuery.js"></script>
+   <script>
+   	$(document).ready(function() {
+   			
+   		/*$("input.cols").change(function(e) {
+   			$col = $("#" + e.target.id);
+   			if ($("input.cols:checked").length > 0)
+   				$("#kek2").fadeIn();
+   			else 
+   				$("#kek2").fadeOut();
+   			if($col.prop("checked")) 
+    				$("#new" + e.target.id).fadeIn();
+     			else 
+    				$("#new" + e.target.id).fadeOut();
+			});*/
+			$("input.Aditional").change(function(e) {
+				if ($("input.Aditional:checked").length == 1) {
+					$("#GroupBox").fadeIn();
+					$("#GroupIND").prop("checked", true);					
+				} 
+				else if ($("input.Aditional:checked").length == 0)
+					$("#GroupBox").fadeOut();
+				else {
+					$("input.Aditional:checked").each(function () {
+						$(this).prop("checked", false);
+					$("#" + e.target.id).prop("checked", true);
+					});
+				}
+			});
+			$("form").submit(function(e) {
+				e.preventDefault();
+				var errorType = ValidateFormJS();
+				if($("form").data("preverror") && $("form").data("preverror") > 0 && $("form").data("preverror") != errorType) {
+					prevErr = $("form").data("preverror") - 1;
+					//if ($("input.cols:checked").length == 0)
+   				//	$("#kek2").fadeOut();
+					document.getElementById("new" + names[prevErr][0]).className = document.getElementById("new" + names[prevErr][0]).className.replace(" error", "");
+					//if (!document.getElementById(names[prevErr][0]).checked)
+					//	$("#new" + names[prevErr][0]).fadeOut();
+				}
+		
+				if (errorType == -1) {
+					
+					$(".error").hide();
+					$(".modal").show();
+					$(".result").fadeIn();
+					$.ajax({
+            		type: 'post',
+            	 	url: "server.php",
+            		data: $('form').serialize(),
+            		success: function (d) {
+            			$(".modal").hide();
+              			document.getElementsByClassName("result")[0].innerHTML = d; 
+              			$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, 1000);
+            		}
+          		});
+          	}
+    			else { 
+    				$(".error").show();
+    				$(".result").hide();
+    				if (errorType == -2)
+    					document.getElementsByClassName("error")[0].innerHTML = 'Error: nothing chosen.';
+    				else	{
+    					document.getElementsByClassName("error")[0].innerHTML = 'Error in filter "' + names[errorType][1] + '"';
+						$("#kek2").show();    					
+    					document.getElementById("new" + names[errorType][0]).className += " error";
+    					$("#new" + names[errorType][0]).show();
+					}    				
+    				$("html, body").animate({ scrollTop: 0 }, "slow");
+    			}
+    			$("form").data({preverror: (errorType + 1), windowPosition: $("body").scrollTop()});
+			});
+		});
+   </script>	   
+</head>
+<body>
+<p class = "error" hidden></p>
+<form id = "form1">
+	<fieldset id = 'kek1'></fieldset>
+	<fieldset id = "kek2"></fieldset>
+	<fieldset>
+		<legend>Дополнительные возможности</legend>
+		<p><input type = "checkbox" name = "Aditional[]" class = "Aditional" value = "COUNT" id = "Count">количество</p>
+		<p><input type = "checkbox" name = "Aditional[]" class = "Aditional" value = "SUM" id = "Sum">сумма</p>
+		<p><input type = "checkbox" name = "Aditional[]" class = "Aditional" value = "AVG" id = "Avg">среднее арифметическое</p>	
+	</fieldset>
+	<fieldset id = "GroupBox" hidden>
+		<legend>Группировка данных</legend>
+		<input type = "checkbox" name = "Groups[]" id = "GroupIND" value = "IND"> станции<br>
+		<input type = "checkbox" name = "Groups[]" id = "GroupYEAR" value = "YEAR(DAYS)"> годы<br>
+		<input type = "checkbox" name = "Groups[]" id = "GroupMONTH" value = "MONTH(DAYS)"> месяцы<br>		
+	</fieldset>
+	<fieldset>
+		<legend>Параметры вывода</legend>
+		предпросмотр<br>
+		<input type = "number" min = 0 value = "10" name = "TableSize" required>
+		количество строк на странице<br>
+		<p><input type = "checkbox" name = "Outfile" id = "Outfile">вывод в файл</p>
+	</fieldset>
+	<input type="submit" name = "SubmitAll" value="Применить">
+</form>
+<script>
+	var text = "<legend>Выберите нужные колонки базы данных.</legend>";
+	for (i = 0; i < names.length; i++) {
+		text +="<input type='checkbox' name = 'Columns[]' class = 'cols' id = '"  + names[i][0] + "' value = '"  + names[i][0] + "'>" 
+			+ names[i][1] + "<br>";
+	}
+	document.getElementById("kek1").innerHTML = text;
+	text = "<legend>Фильтры</legend>";
+	
+	text += "<p id = 'newDAYS'>";
+	
+	text += "от <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'lYEAR' name = 'YEAR[]'> ";
+	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'lMONTH' name = 'MONTH[]'> ";
+	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'lDAY' name = 'DAY[]'> ";
+	
+	text += "до <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'rYEAR' name = 'YEAR[]'> ";
+	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'rMONTH' name = 'MONTH[]'> ";
+	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'rDAY' name = 'DAY[]'> ";
+ 
+	text += "дата <br><select id = 'method' name = 'DateType'>";
+   text += "<option value='method1'>способ 1</option>";
+   text += "<option value='method1'>способ 2</option>";
+	text += "</select><a href = 'info.html'>*</a><br><br></p>";
+	for (i = 1; i < names.length; i++) {
+		text += "<p id = 'new"  + names[i][0] + "'>";
+		text += "от <input type='number'  step = '0.1' lang = 'eng' placeholder = 'min' id = 'l" + names[i][0] + "' name = '" + names[i][0] + "[]'>"; 
+		text += "до <input type='number'  step = '0.1' lang = 'eng' placeholder = 'max' id = 'r" + names[i][0] + "' name = '" + names[i][0] + "[]'> " 
+		+ names[i][1] + "</p>";
+	}
+	document.getElementById("kek2").innerHTML = text;
+</script>
+<p class = "result" hidden></p>
+<div class='modal' hidden></div>
+</body>
+</html>
