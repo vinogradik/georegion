@@ -33,6 +33,16 @@
 					});
 				}
 			});
+			$("input[name = extractType]").change(function(){
+				if ($("input[name = extractType]:checked").val() == 1) {
+					$("#filename").show();
+					$("#TableSize").hide();
+				}
+				else {
+					$("#TableSize").show();
+					$("#filename").hide();
+				}
+			});
 			$("form").submit(function(e) {
 				e.preventDefault();
 				var errorType = ValidateFormJS();
@@ -50,7 +60,7 @@
 					$(".error").hide();
 					$(".modal").show();
 					$(".result").fadeIn();
-					$.ajax({
+					/*$.ajax({
             		type: 'post',
             	 	url: "server.php",
             		data: $('form').serialize(),
@@ -59,7 +69,14 @@
               			document.getElementsByClassName("result")[0].innerHTML = d; 
               			$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, 1000);
             		}
-          		});
+          		});*/
+          		$.post('server.php', $("form").serialize(), function(retData) {
+          			if ($("input[name = extractType]:checked").val() == 1)
+  							$("body").append("<iframe src='DownloadCSV.php' style='display: none;' ></iframe>");
+  						$(".modal").hide();
+  						document.getElementsByClassName("result")[0].innerHTML = retData;
+  						$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, 1000); 
+					}); 
           	}
     			else { 
     				$(".error").show();
@@ -98,10 +115,10 @@
 	</fieldset>
 	<fieldset>
 		<legend>Параметры вывода</legend>
-		предпросмотр<br>
-		<input type = "number" min = 0 value = "10" name = "TableSize" required>
-		количество строк на странице<br>
-		<p><input type = "checkbox" name = "Outfile" id = "Outfile">вывод в файл</p>
+		<p><input type = "radio" name = "extractType" value = "0" checked>предпросмотр</p>
+		<p><input type = "radio" name = "extractType" value = "1">вывод в файл</p>
+		<p id = "TableSize"><input type = "number" min = 0 value = "10" name = "TableSize"> количество строк на странице</p>
+		<p  id = "filename" hidden><input type = "text" name = "filename" placeholder = "data.csv"> имя файла</p>
 	</fieldset>
 	<input type="submit" name = "SubmitAll" value="Применить">
 </form>
@@ -138,5 +155,6 @@
 </script>
 <p class = "result" hidden></p>
 <div class='modal' hidden></div>
+<p id = "demo"></p>
 </body>
 </html>

@@ -190,7 +190,7 @@ function GenerateQuery($Data) {
 		$sqlquery = substr($sqlquery, 0, -2);
 	}			
 	
-	if (empty($Data['Outfile']))
+	if ($Data['extractType'] == 0)
 		$sqlquery .= " LIMIT ".$Data['TableSize'];
 		
 	return $sqlquery;			
