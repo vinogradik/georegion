@@ -12,10 +12,14 @@ h3 {
 legend {
 	font-size: large;
 }
-fieldset {
+fieldset.main {
 	background-color: #b3cbff;
 	%border-width: 10px;	
 	%border
+}
+
+fieldset.regions {
+	background-color: #ffffff;
 }
 .error {
 	color: red;
@@ -25,18 +29,21 @@ fieldset {
 tr {
 	background-color: #b3cbff;
 	color: black;
-}
+}	
 input {
-	width = 10%;
+	#width: 10%;
 }
 select {
-	margin = 10px;
+	#margin = 10px;
 }
 input[type = submit] {
 	#background-color: #e6eeff;
 	#padding: 5px;
 	margin: 10px;
 	#border-radius: 6px;
+}
+input.SubmitRegions {
+	postion: fixed;
 }
 input[type=number]{
 	#background-color: black;
@@ -50,13 +57,23 @@ input[type=text]{
 }
 table {
 	width: 100%;
+	text-align: left;	
+}
+td.left {
+	-moz-width: 13%;
+	-webkit-width 130px;
 }
 
+
 a {
-	color: #00081a;
+	color: #ffffff;
 	text-decoration: none;
 	background-color: #b3cbff;
 }
+a:hover {
+ cursor:pointer;
+}
+
 p {
 	margin-top: 4px;
 	margin-bottom: 0;
@@ -82,4 +99,38 @@ input[type=number] {
                 url('2.gif') 
                 50% 50% 
                 no-repeat;
+}
+.col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 200px; /* chrome, safari */
+    -moz-columns: 2 200px;    /* firefox */
+  }
+pre {
+	background-color: white;
+}
+.custom-ui-dialog {
+  background: #e6eeff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  position: fixed;
+  z-index: 1000;
+  overflow-y: auto;
+}
+.ui-dialog-titlebar {
+	background-color: #ffffff%#ccdcff;
+	padding: 5px;
+	border-radius: 5px;
+}
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
+.centered_div {
+   width: Xu;
+   height: Yu;
+   position: fixed;
+   top: 50%;
+   left: 50%;
+   margin-left: -(X/2)u;
+   margin-top: -(Y/2)u;
 }

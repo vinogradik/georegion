@@ -3,36 +3,120 @@
 	<link rel="stylesheet" type="text/css" href="style.css">
   	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
    <title> База Данных </title>
-   <script src="jquery-3.1.1.js"></script>
+   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
    <script src="genQuery.js"></script>
-   <script>
+   <link href="google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="google-code-prettify/prettify.js"></script>
+     <script>	
    	$(document).ready(function() {
-   			
-   		/*$("input.cols").change(function(e) {
-   			$col = $("#" + e.target.id);
-   			if ($("input.cols:checked").length > 0)
-   				$("#kek2").fadeIn();
-   			else 
-   				$("#kek2").fadeOut();
-   			if($col.prop("checked")) 
-    				$("#new" + e.target.id).fadeIn();
-     			else 
-    				$("#new" + e.target.id).fadeOut();
-			});*/
-			$("input.Aditional").change(function(e) {
-				if ($("input.Aditional:checked").length == 1) {
-					$("#GroupBox").fadeIn();
-					$("#GroupIND").prop("checked", true);					
-				} 
-				else if ($("input.Aditional:checked").length == 0)
-					$("#GroupBox").fadeOut();
-				else {
-					$("input.Aditional:checked").each(function () {
+			$("input.Functions").change(function(e) {
+				switch ($("input.Functions:checked").length) {
+				case 1:
+					$(".withAd").fadeIn();
+					break;
+				case 0: 
+					$(".withAd").fadeOut();
+					resetHiddenPart();
+					break;
+				default: 
+					$("input.Functions:checked").each(function () {
 						$(this).prop("checked", false);
-					$("#" + e.target.id).prop("checked", true);
 					});
-				}
+					$("#" + e.target.id).prop("checked", true);
+				}				
 			});
+			
+			
+			$(document).on('change', 'input.REGIONList', function(){
+				
+				var j = 0;
+
+				while (this.value != groups[0][2][j])
+					j++;
+				if (j > 0) 
+					if (this.checked) 
+						$("#" + groups[0][2][j]).fadeIn();
+					else  
+						$("#" + groups[0][2][j]).fadeOut(); 	
+    		});			
+			
+			$("input.Group").change(function(e){
+				if ($("input#LR:checked").length == 1)  
+					$("input.notLR:checked").each(function(){
+						$(this).prop("checked", false);	
+					});
+				var i = 0;
+				while (this.id != "Group" + groups[i][0])
+					i++;
+				if (this.checked == true) 
+					customDialog(i);
+         	else {
+         		document.getElementById("Group" + groups[i][0] + "List").innerHTML = "";
+         		FormSerialised[i] = "";
+         		AdFormData[i] = {};
+         		if ($("#your-dialog").hasClass('ui-dialog-content')) 
+         			$("#your-dialog").dialog("close");
+         	}
+			});
+			
+			$(document).on("submit", "form.AdForm", function(e){
+				e.preventDefault();
+				var i = 0;
+				while (this.id != groups[i][0])
+					i++;
+				AdFormData[i] = getFormDataArray(this);
+				var errorType = ValidateAdFormJS(i);
+        		if (errorType == -1){   	
+      			str = "";
+         		$("input." + groups[i][0] + "List").each(function(){
+         			if (this.checked == true) {
+            			var j = 0;
+							while ($(this).val() != groups[i][2][j])
+								j++;
+							if(str.length == 0)
+								str += "+ ";
+							else 
+								str += ", ";
+           				str += groups[i][3][j];
+           			}
+        			});
+					if (str.length != 0) 
+						str += ";"
+						       			
+        			str += "<a class = 'AdFormChange' id = '" + groups[i][0] + "ListChange'> изменить</a>"
+     				document.getElementById("Group" + groups[i][0] + "List").innerHTML = str;
+         		$("#your-dialog").dialog("close");
+         		FormSerialised[i] = $(this).serialize();
+         	}
+         	else 
+         		alert('проверьте фильтр "годы" параметра "' + groups[i][3][errorType] + '"');
+      	});
+      	
+      	$(document).on("click", "a.AdFormChange", function(){
+      		i = 0; 
+      		while (this.id != groups[i][0] + "ListChange")
+      			i++;
+      		customDialog(i);
+      	});
+			
+			$("input#LR").change(function(){
+				var x = $("p.notLR");
+				if (this.checked) {
+					$("input.notLR:checked").each(function(){
+						$(this).prop("checked", false);	
+					});
+					for (i = 0; i < x.length; i++)
+						x[i].style.opacity = 0.5;
+				}
+				else {
+					for (i = 0; i < x.length; i++) 
+						x[i].style.opacity = 1;
+				}					
+			});
+			
+			
+			
 			$("input[name = extractType]").change(function(){
 				if ($("input[name = extractType]:checked").val() == 1) {
 					$("#filename").show();
@@ -43,39 +127,32 @@
 					$("#filename").hide();
 				}
 			});
-			$("form").submit(function(e) {
+			
+			
+			$("form#Main").submit(function(e) {
 				e.preventDefault();
 				var errorType = ValidateFormJS();
-				if($("form").data("preverror") && $("form").data("preverror") > 0 && $("form").data("preverror") != errorType) {
-					prevErr = $("form").data("preverror") - 1;
-					//if ($("input.cols:checked").length == 0)
-   				//	$("#kek2").fadeOut();
+				if($("form#Main").data("preverror") && $("form#Main").data("preverror") > 0 && $("form#Main").data("preverror") != errorType) {
+					prevErr = $("form#Main").data("preverror") - 1;
 					document.getElementById("new" + names[prevErr][0]).className = document.getElementById("new" + names[prevErr][0]).className.replace(" error", "");
-					//if (!document.getElementById(names[prevErr][0]).checked)
-					//	$("#new" + names[prevErr][0]).fadeOut();
 				}
 		
 				if (errorType == -1) {
-					
 					$(".error").hide();
 					$(".modal").show();
 					$(".result").fadeIn();
-					/*$.ajax({
-            		type: 'post',
-            	 	url: "server.php",
-            		data: $('form').serialize(),
-            		success: function (d) {
-            			$(".modal").hide();
-              			document.getElementsByClassName("result")[0].innerHTML = d; 
-              			$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, 1000);
-            		}
-          		});*/
-          		$.post('server.php', $("form").serialize(), function(retData) {
+					
+					var sentData = $('form#Main').serialize();
+					for (i = 0; i < groups.length; i++)
+						if (FormSerialised[i].length > 0) 
+							sentData += "&" + FormSerialised[i];
+          		$.post('server.php', sentData, function(retData) {
           			if ($("input[name = extractType]:checked").val() == 1)
   							$("body").append("<iframe src='DownloadCSV.php' style='display: none;' ></iframe>");
   						$(".modal").hide();
   						document.getElementsByClassName("result")[0].innerHTML = retData;
-  						$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, 1000); 
+  						prettyPrint();
+  						$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, "slow");
 					}); 
           	}
     			else { 
@@ -91,70 +168,81 @@
 					}    				
     				$("html, body").animate({ scrollTop: 0 }, "slow");
     			}
-    			$("form").data({preverror: (errorType + 1), windowPosition: $("body").scrollTop()});
+    			$("form#Main").data({preverror: (errorType + 1), windowPosition: $("body").scrollTop()});
+    			
 			});
 		});
    </script>	   
 </head>
 <body>
 <p class = "error" hidden></p>
-<form id = "form1">
-	<fieldset id = 'kek1'></fieldset>
-	<fieldset id = "kek2"></fieldset>
-	<fieldset>
-		<legend>Дополнительные возможности</legend>
-		<p><input type = "checkbox" name = "Aditional[]" class = "Aditional" value = "COUNT" id = "Count">количество</p>
-		<p><input type = "checkbox" name = "Aditional[]" class = "Aditional" value = "SUM" id = "Sum">сумма</p>
-		<p><input type = "checkbox" name = "Aditional[]" class = "Aditional" value = "AVG" id = "Avg">среднее арифметическое</p>	
+<form id = "Main">
+	<fieldset id = 'kek1' class  = "main"></fieldset>
+	<fieldset id = "kek3" class  = "main"></fieldset>
+	<fieldset class = "withAd main" hidden class  = "main">
+		<legend>Линейная регрессия</legend>
+		<input type = "checkbox" name = "LR" value = "LR" id = "LR" autocomplete = "off"> посчитать коэффициент наклона линии тренда<br>
 	</fieldset>
-	<fieldset id = "GroupBox" hidden>
-		<legend>Группировка данных</legend>
-		<input type = "checkbox" name = "Groups[]" id = "GroupIND" value = "IND"> станции<br>
-		<input type = "checkbox" name = "Groups[]" id = "GroupYEAR" value = "YEAR(DAYS)"> годы<br>
-		<input type = "checkbox" name = "Groups[]" id = "GroupMONTH" value = "MONTH(DAYS)"> месяцы<br>		
-	</fieldset>
-	<fieldset>
+	<fieldset class = "withAd main" id = "kek4" hidden></fieldset>
+	<fieldset class  = "main">
 		<legend>Параметры вывода</legend>
 		<p><input type = "radio" name = "extractType" value = "0" checked>предпросмотр</p>
 		<p><input type = "radio" name = "extractType" value = "1">вывод в файл</p>
 		<p id = "TableSize"><input type = "number" min = 0 value = "10" name = "TableSize"> количество строк на странице</p>
 		<p  id = "filename" hidden><input type = "text" name = "filename" placeholder = "data.csv"> имя файла</p>
 	</fieldset>
-	<input type="submit" name = "SubmitAll" value="Применить">
+	<input type="submit" name = "SubmitAll" value="Применить" id = "SubmitAll">
 </form>
 <script>
-	var text = "<legend>Выберите нужные колонки базы данных.</legend>";
-	for (i = 0; i < names.length; i++) {
-		text +="<input type='checkbox' name = 'Columns[]' class = 'cols' id = '"  + names[i][0] + "' value = '"  + names[i][0] + "'>" 
-			+ names[i][1] + "<br>";
-	}
-	document.getElementById("kek1").innerHTML = text;
-	text = "<legend>Фильтры</legend>";
-	
-	text += "<p id = 'newDAYS'>";
-	
-	text += "от <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'lYEAR' name = 'YEAR[]'> ";
+	var text = "<legend>Выберите нужные колонки базы данных и фильтры для них</legend>";
+
+	text += "<p>от <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'lYEAR' name = 'YEAR[]'> ";
 	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'lMONTH' name = 'MONTH[]'> ";
 	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'lDAY' name = 'DAY[]'> ";
 	
 	text += "до <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'rYEAR' name = 'YEAR[]'> ";
 	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'rMONTH' name = 'MONTH[]'> ";
 	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'rDAY' name = 'DAY[]'> ";
- 
-	text += "дата <br><select id = 'method' name = 'DateType'>";
+
+	text +="<input type='checkbox' name = 'Columns[]' class = 'cols' id = 'DAYS' value = 'DAYS'> дата</p>";
+	 
+	text += "<select id = 'method' name = 'DateType'>";
    text += "<option value='method1'>способ 1</option>";
-   text += "<option value='method1'>способ 2</option>";
-	text += "</select><a href = 'info.html'>*</a><br><br></p>";
+   text += "<option value='method2'>способ 2</option>";
+	text += "</select><a href = 'info.html'>*</a>";
+
 	for (i = 1; i < names.length; i++) {
-		text += "<p id = 'new"  + names[i][0] + "'>";
-		text += "от <input type='number'  step = '0.1' lang = 'eng' placeholder = 'min' id = 'l" + names[i][0] + "' name = '" + names[i][0] + "[]'>"; 
-		text += "до <input type='number'  step = '0.1' lang = 'eng' placeholder = 'max' id = 'r" + names[i][0] + "' name = '" + names[i][0] + "[]'> " 
-		+ names[i][1] + "</p>";
+		text += "<p>";
+		text += "от <input type='number'  step = '0.1' lang = 'eng' placeholder = 'min' id = 'l" + names[i][0] + "' name = '" + names[i][0] + "[]'> "; 
+		text += "до <input type='number'  step = '0.1' lang = 'eng' placeholder = 'max' id = 'r" + names[i][0] + "' name = '" + names[i][0] + "[]'> ";
+		text +="<input type='checkbox' name = 'Columns[]' class = 'cols' id = '"  + names[i][0] + "' value = '"  + names[i][0] + "'>" 
+			+ names[i][1] + "</p>";
 	}
-	document.getElementById("kek2").innerHTML = text;
+	text += "</table>";
+	document.getElementById("kek1").innerHTML = text;
+	text = "<legend>Функции</legend>";
+	for (i = 0; i < functions.length; i++) 
+		text += "<p><input type = 'checkbox' name = 'Functions[]' class = 'Functions' value = '" 
+			+ functions[i][0] + "' id = '"+ functions[i][0] + "'>" + functions[i][1] + "</p>";
+	document.getElementById("kek3").innerHTML = text;
+	text = "<legend>Группировка данных</legend>";
+	for (i = 0; i < groups.length; i++) {
+		notLR = "";
+		if (i > 1)
+			notLR = "notLR";
+		text += "<p class = '" + notLR + "'><input type = 'checkbox' name = 'Groups[]'  id = 'Group" +groups[i][0] 
+			+ "' class = 'Group " + notLR + "' value = '" + groups[i][0] + "' autocomplete = 'off'>" + groups[i][1] + "</p>";
+		text += "<p class = 'GroupLists' id = Group" + groups[i][0] + "List></p>";
+	}
+	document.getElementById("kek4").innerHTML = text;
+	
+	
 </script>
 <p class = "result" hidden></p>
 <div class='modal' hidden></div>
 <p id = "demo"></p>
+<div class = "centered_div"></div>
+<div id = 'your-dialog'></div>
+<div id = "info"></div>
 </body>
 </html>
