@@ -1,29 +1,45 @@
 	<html lang = ru>
 <head>
-	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="CSS/style.css">
   	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
    <title> База Данных </title>
    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 	<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
-   <script src="genQuery.js"></script>
-   <link href="google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
-	<script type="text/javascript" src="google-code-prettify/prettify.js"></script>
+   <script src="/JS/genQuery.js"></script>
+   <link href="CSS/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="/CSS/google-code-prettify/prettify.js"></script>
      <script>	
    	$(document).ready(function() {
-			$("input.Functions").change(function(e) {
-				switch ($("input.Functions:checked").length) {
+   		var primaryTable = "METEO_DATA_2015_WREGIONS";
+   		$('select#chooseTable').on('change', function() {
+   			$(".error").hide();
+   			$("div.forTable").hide();
+   			$(".result").hide();
+   			primaryTable = this.value;
+   			$("div#" + primaryTable).show();
+			})
+   		
+   		$("input").change(function () {
+   			$(".result")[0].style.opacity = 0.5;
+   		})
+   		
+			$("input.functions").change(function(e) {
+				switch ($("input." + primaryTable +".functions:checked").length) {
 				case 1:
-					$(".withAd").fadeIn();
+					if (primaryTable == "METEO_DATA_2015_WREGIONS")					
+						$(".withAd").fadeIn();
 					break;
-				case 0: 
-					$(".withAd").fadeOut();
-					resetHiddenPart();
+				case 0:
+					if (primaryTable == "METEO_DATA_2015_WREGIONS") {					 
+						$(".withAd").fadeOut();
+						resetHiddenPart();
+					}
 					break;
 				default: 
-					$("input.Functions:checked").each(function () {
+					$("input." + primaryTable + ".functions:checked").each(function () {
 						$(this).prop("checked", false);
 					});
-					$("#" + e.target.id).prop("checked", true);
+					$("#" + e.target.id + "." + primaryTable).prop("checked", true);
 				}				
 			});
 			
@@ -131,26 +147,27 @@
 			
 			$("form#Main").submit(function(e) {
 				e.preventDefault();
-				var errorType = ValidateFormJS();
-				if($("form#Main").data("preverror") && $("form#Main").data("preverror") > 0 && $("form#Main").data("preverror") != errorType) {
+				var errorType = ValidateFormJS(primaryTable);
+				/*if($("form#Main").data("preverror") && $("form#Main").data("preverror") > 0 && $("form#Main").data("preverror") != errorType) {
 					prevErr = $("form#Main").data("preverror") - 1;
 					document.getElementById("new" + names[prevErr][0]).className = document.getElementById("new" + names[prevErr][0]).className.replace(" error", "");
-				}
+				}*/
 		
 				if (errorType == -1) {
 					$(".error").hide();
 					$(".modal").show();
+					$(".result")[0].style.opacity = 1;
 					$(".result").fadeIn();
 					
 					var sentData = $('form#Main').serialize();
 					for (i = 0; i < groups.length; i++)
 						if (FormSerialised[i].length > 0) 
 							sentData += "&" + FormSerialised[i];
-          		$.post('server.php', sentData, function(retData) {
+          		$.post('/PHP/server.php', sentData, function(retData) {
           			if ($("input[name = extractType]:checked").val() == 1)
-  							$("body").append("<iframe src='DownloadCSV.php' style='display: none;' ></iframe>");
+  							$("body").append("<iframe src='PHP/DownloadCSV.php' style='display: none;' ></iframe>");
   						$(".modal").hide();
-  						document.getElementsByClassName("result")[0].innerHTML = retData;
+  						$(".result").html(retData);
   						prettyPrint();
   						$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, "slow");
 					}); 
@@ -161,10 +178,12 @@
     				if (errorType == -2)
     					document.getElementsByClassName("error")[0].innerHTML = 'Error: nothing chosen.';
     				else	{
-    					document.getElementsByClassName("error")[0].innerHTML = 'Error in filter "' + names[errorType][1] + '"';
-						$("#kek2").show();    					
-    					document.getElementById("new" + names[errorType][0]).className += " error";
-    					$("#new" + names[errorType][0]).show();
+    					var it = 0;
+						while(primaryTable != tables[it][0])
+							it++;
+    					document.getElementsByClassName("error")[0].innerHTML = 'Error in filter "' + tables[it][3][errorType] + '"';    					
+    					//document.getElementById("new" + names[errorType][0]).className += " error";
+    					//$("#new" + names[errorType][0]).show();
 					}    				
     				$("html, body").animate({ scrollTop: 0 }, "slow");
     			}
@@ -177,52 +196,63 @@
 <body>
 <p class = "error" hidden></p>
 <form id = "Main">
+	<fieldset  id = "chooseTable" class  = "main"></fieldset>	
+	<div class = "forTable" id = "METEO_DATA_2015_WREGIONS">
 	<fieldset id = 'kek1' class  = "main"></fieldset>
 	<fieldset id = "kek3" class  = "main"></fieldset>
-	<fieldset class = "withAd main" hidden class  = "main">
+	<fieldset class = "main withAd" hidden class  = "main">
 		<legend>Линейная регрессия</legend>
 		<input type = "checkbox" name = "LR" value = "LR" id = "LR" autocomplete = "off"> посчитать коэффициент наклона линии тренда<br>
 	</fieldset>
-	<fieldset class = "withAd main" id = "kek4" hidden></fieldset>
+	<fieldset class = "main withAd" id = "kek4" hidden></fieldset>
+	</div>
+	<div id = "otherTables"></div>
 	<fieldset class  = "main">
 		<legend>Параметры вывода</legend>
-		<p><input type = "radio" name = "extractType" value = "0" checked>предпросмотр</p>
-		<p><input type = "radio" name = "extractType" value = "1">вывод в файл</p>
+		<p><input type = "radio" name = "extractType" value = "0" checked autocomplete = "off">предпросмотр</p>
+		<p><input type = "radio" name = "extractType" value = "1" autocomplete = "off">вывод в файл</p>
 		<p id = "TableSize"><input type = "number" min = 0 value = "10" name = "TableSize"> количество строк на странице</p>
 		<p  id = "filename" hidden><input type = "text" name = "filename" placeholder = "data.csv"> имя файла</p>
 	</fieldset>
 	<input type="submit" name = "SubmitAll" value="Применить" id = "SubmitAll">
 </form>
 <script>
-	var text = "<legend>Выберите нужные колонки базы данных и фильтры для них</legend>";
-
-	text += "<p>от <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'lYEAR' name = 'YEAR[]'> ";
-	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'lMONTH' name = 'MONTH[]'> ";
-	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'lDAY' name = 'DAY[]'> ";
+	var text = "<legend>Выберите основную таблицу</legend>";
+	text += "<select class = 'short' id = 'chooseTable' name = 'primaryTable' autocomplete = 'off'>";	
+	for (i = 0; i < tables.length; i++)
+		text += "<option value = '" + tables[i][0] + "'>" + tables[i][1] + "</option>";
+	text += "</select>";
 	
-	text += "до <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'rYEAR' name = 'YEAR[]'> ";
-	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'rMONTH' name = 'MONTH[]'> ";
-	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'rDAY' name = 'DAY[]'> ";
+	$("fieldset#chooseTable").html(text);
+	
+	text = "<legend>Выберите нужные колонки базы данных и фильтры для них</legend>";
+
+	text += "<p>от <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'lYEARl' name = 'YEAR[]'> ";
+	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'lMONTHl' name = 'MONTH[]'> ";
+	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'lDAYl' name = 'DAY[]'> ";
+	
+	text += "до <input type='number' min = '1800' max = '2100' placeholder = 'год' id = 'rYEARr' name = 'YEAR[]'> ";
+	text += "<input type='number' min = '1' max = '12' placeholder = 'месяц' id = 'rMONTHr' name = 'MONTH[]'> ";
+	text += "<input type='number' min = '1' max = '31' placeholder = 'день' id = 'rDAYr' name = 'DAY[]'> ";
 
 	text +="<input type='checkbox' name = 'Columns[]' class = 'cols' id = 'DAYS' value = 'DAYS'> дата</p>";
 	 
-	text += "<select id = 'method' name = 'DateType'>";
+	text += "<select id = 'method' class = 'short' name = 'DateType'>";
    text += "<option value='method1'>способ 1</option>";
    text += "<option value='method2'>способ 2</option>";
-	text += "</select><a href = 'info.html'>*</a>";
+	text += "</select><a href = '/INFO/info.html'>*</a>";
 
 	for (i = 1; i < names.length; i++) {
 		text += "<p>";
-		text += "от <input type='number'  step = '0.1' lang = 'eng' placeholder = 'min' id = 'l" + names[i][0] + "' name = '" + names[i][0] + "[]'> "; 
-		text += "до <input type='number'  step = '0.1' lang = 'eng' placeholder = 'max' id = 'r" + names[i][0] + "' name = '" + names[i][0] + "[]'> ";
-		text +="<input type='checkbox' name = 'Columns[]' class = 'cols' id = '"  + names[i][0] + "' value = '"  + names[i][0] + "'>" 
+		text += "от <input class = 'METEO_DATA_2015_WREGIONS filters' type='number'  step = '0.1' lang = 'eng' placeholder = 'min' id = 'l" + names[i][0] + "' name = '" + names[i][0] + "[]'> "; 
+		text += "до <input class = 'METEO_DATA_2015_WREGIONS filters' type='number'  step = '0.1' lang = 'eng' placeholder = 'max' id = 'r" + names[i][0] + "' name = '" + names[i][0] + "[]'> ";
+		text +="<input class = 'METEO_DATA_2015_WREGIONS columns' type='checkbox' name = 'Columns[]' class = 'cols' id = '"  + names[i][0] + "' value = '"  + names[i][0] + "'>" 
 			+ names[i][1] + "</p>";
 	}
-	text += "</table>";
 	document.getElementById("kek1").innerHTML = text;
 	text = "<legend>Функции</legend>";
 	for (i = 0; i < functions.length; i++) 
-		text += "<p><input type = 'checkbox' name = 'Functions[]' class = 'Functions' value = '" 
+		text += "<p><input type = 'checkbox' name = 'Functions[]' class = 'METEO_DATA_2015_WREGIONS functions' value = '" 
 			+ functions[i][0] + "' id = '"+ functions[i][0] + "'>" + functions[i][1] + "</p>";
 	document.getElementById("kek3").innerHTML = text;
 	text = "<legend>Группировка данных</legend>";
@@ -236,6 +266,48 @@
 	}
 	document.getElementById("kek4").innerHTML = text;
 	
+	
+	
+	for (i = 1; i < tables.length; i++) {		
+		text = "<div class = 'forTable' id = '" + tables[i][0] + "' hidden></div>";
+		$("div#otherTables").append(text);
+		
+		//columns		
+		text = "<fieldset id = 'columns' class = 'main " + tables[i][0] + "'></fieldset>";
+		$("div#" + tables[i][0]).append(text);
+			
+		text = "<legend>Выберите нужные колонки базы данных и фильтры для них</legend><table class = 'columns_filters'>";
+		var k = 0;
+		for (p = 0; p < tables[i][2].length; p++) {
+			text += "<tr><td class = 'left'>";
+			if (i > 1 && EDataCols[i - 2][0].length > k + 1 && EDataCols[i - 2][0][k] == tables[i][2][p]) {
+				text += "<select class = '" + tables[i][0] + " filters' id = '" + tables[i][2][p] + "' name = '" + tables[i][0] + tables[i][2][p] + "'>";
+				for (l = 0; l < EDataCols[i - 2][1][k].length; l++) {
+   				text += "<option value = '" + EDataCols[i - 2][1][k][l] + "'>" + EDataCols[i - 2][1][k][l] + "</option>";
+   			}
+   			text += "</select>";
+   			k++;
+   		}
+   		else
+   		if (i != 2 || p != 1){
+					text += "от <input type='number' class = '" + tables[i][0] +" filters' id = 'l" + tables[i][2][p] + "' name = '" + tables[i][0] + tables[i][2][p] + "L' step = '1' min = '' max = '' lang = 'eng' placeholder = 'min'> "; 
+					text += "до <input type='number' class = '" + tables[i][0] +" filters' id = 'r" + tables[i][2][p] + "' name = '" + tables[i][0] + tables[i][2][p] + "R' step = '1' min = '' max = '' lang = 'eng' placeholder = 'max'>";				
+			}
+			text += "</td><td><input type = checkbox class = '" + tables[i][0] +" columns' id = '" + tables[i][2][p] + "' name = '" + tables[i][0] + "Columns[]' value = '" + tables[i][2][p] + "'> " + tables[i][3][p] + "</input></td></tr>";
+		}		
+		text += "</table>";
+		$("fieldset#columns." + tables[i][0]).html(text);
+		
+		//functions
+		if (i != 2) {
+			text = "<fieldset id = 'functions' class = 'main " + tables[i][0] + "'></fieldset>";
+			$("div#" + tables[i][0]).append(text);
+			text = "<legend>Функции</legend>";
+			for (k = 0; k < functions.length; k++)
+				text += "<input type = checkbox class = '" + tables[i][0] +" functions' id = '" + functions[k][0] +"' name = '" + tables[i][0] + "Functions[]' value = '" + functions[k][0] + "'> " + functions[k][1] + "</input><br>";
+			$("fieldset#functions." + tables[i][0]).html(text);
+		}
+	}	
 	
 </script>
 <p class = "result" hidden></p>

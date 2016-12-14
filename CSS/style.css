@@ -1,0 +1,144 @@
+body {
+   background-color: #ccdcff;
+}
+
+h3 p legend {
+	color: #00081a;
+	font-weight: 400; 
+}
+h3 {
+   margin-left: 20px;
+}
+legend {
+	font-size: large;
+}
+fieldset.main {
+	background-color: #b3cbff;
+	%border-width: 10px;	
+	%border
+}
+
+fieldset.regionsGrouping {
+	background-color: #ffffff;
+}
+.error {
+	color: red;
+	%background-color: #80a8ff;
+	opacity: 1;
+}
+tr {
+	background-color: #b3cbff;
+	color: black;
+}	
+input {
+	#width: 10%;
+}
+select {
+	width: 100%;
+}
+select.short{
+	width: auto;
+}
+input[type = submit] {
+	#background-color: #e6eeff;
+	#padding: 5px;
+	margin: 10px;
+	#border-radius: 6px;
+}
+input.SubmitRegions {
+	postion: fixed;
+}
+input[type=number]{
+	#background-color: black;
+	#border-radius: 4px;
+	width: 100;
+}
+input[type=text]{
+	#background-color: black;
+	#border-radius: 4px;
+	width: 100;
+}
+table {
+	width: 100%;
+	text-align: left;	
+}
+
+
+td.left {
+   text-align:right;
+   width:1%;
+   white-space: nowrap;
+	-moz-width: 13%;
+	-webkit-width 130px;
+}
+
+
+a {
+	color: #ffffff;
+	text-decoration: none;
+	background-color: #b3cbff;
+}
+a:hover {
+ cursor:pointer;
+}
+
+p {
+	margin-top: 4px;
+	margin-bottom: 0;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.modal {
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('/IMG/2.gif') 
+                50% 50% 
+                no-repeat;
+}
+.col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 200px; /* chrome, safari */
+    -moz-columns: 2 200px;    /* firefox */
+  }
+pre {
+	background-color: white;
+}
+.custom-ui-dialog {
+  background: #e6eeff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  position: fixed;
+  z-index: 1000;
+  overflow-y: auto;
+}
+.ui-dialog-titlebar {
+	background-color: #ffffff%#ccdcff;
+	padding: 5px;
+	border-radius: 5px;
+}
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
+.centered_div {
+   width: Xu;
+   height: Yu;
+   position: fixed;
+   top: 50%;
+   left: 50%;
+   margin-left: -(X/2)u;
+   margin-top: -(Y/2)u;
+}
