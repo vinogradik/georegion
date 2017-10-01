@@ -1,24 +1,26 @@
 <?php
 	include "Function.php";
-	$sqlquery = GenerateQuery($_POST);
+	$sqlquery = GenerateQuery($_POST);		
 	if ($_POST['extractType'] == 0) {
-		$Columns = $_POST['Columns'];
-		echo("<h3> Ваш SQL запрос: </h3>");
+		$sqlquery .= "\nLIMIT ".$_POST['TableSize'];
+			
+		echo("<h3> Your SQL query: </h3>");
    	echo("<pre class = 'prettyprint linenums lang-sql'>".$sqlquery.";</pre>");	
    
    	$conn = ConnectDB();
+ini_set("SQL_BIG_SELECTS", 1);
 		$msc = microtime(true);
   		$result = $conn->query($sqlquery);
   		$msc = microtime(true)-$msc;
   		if ($result) {
- 			echo('<h3> Ваши данные: </h3>');
+ 			echo('<h3> Your data: </h3>');
   			
     		$numrows = (int)$_POST['TableSize'];
     		$k = 0;
     		while($row = $result->fetch_assoc()) {
 				$row_length = count($row);    			
     			if ($k == 0) {	
-					echo('<p>Первые '.$numrows.' строк:</p>');
+					echo('<p>First '.$numrows.' lines:</p>');
     				echo('<table><tr><th>#</th>');
 					for ($i = 0; $i < $row_length; $i++)
 						echo('<th>'.array_keys($row)[$i].'</th>');
@@ -38,7 +40,7 @@
   					break;
   			}
   			echo('</table>');
-  			echo("<p>Примерное время обработки запроса: ".round($msc, 3)." cек. </p>");
+  			echo("<p>Working time: ".round($msc, 3)." cек. </p>");
 		}
     	if(!$result)
   			echo('<br>Query '.$sqlquery.' error<br>');
@@ -58,7 +60,7 @@
 			$conn = ConnectDB();
 			ini_set("max_execution_time", 300);
    		ini_set("memory_limit", "-1");
-			$result = $conn->query("'.$sqlquery.'");'.
+			$result = $conn->query(\''.$sqlquery.'\');'.
 			'$k = 0;
     		while($row = $result->fetch_assoc()) {
 				$row_length = count($row);    			

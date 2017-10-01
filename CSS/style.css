@@ -76,7 +76,7 @@ td.left {
 a {
 	color: #ffffff;
 	text-decoration: none;
-	background-color: #b3cbff;
+	%background-color: #b3cbff;
 }
 a:hover {
  cursor:pointer;
@@ -104,7 +104,7 @@ input[type=number] {
     height:     100%;
     width:      100%;
     background: rgba( 255, 255, 255, .8 ) 
-                url('/IMG/2.gif') 
+                url('../IMG/2.gif') 
                 50% 50% 
                 no-repeat;
 }
