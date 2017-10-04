@@ -3,9 +3,12 @@
 	$sqlquery = GenerateQuery($_POST);		
 	if ($_POST['extractType'] == 0) {
 		$sqlquery .= "\nLIMIT ".$_POST['TableSize'];
-			
-		echo("<h3> Ваш SQL запрос: </h3>");
-   	echo("<pre class = 'prettyprint linenums lang-sql'>".$sqlquery.";</pre>");	
+		
+		if ($_POST['lang'] == "russian")
+			echo("<h3> Ваш SQL запрос: </h3>");
+		else
+			 echo("<h3> Your query: </h3>");
+		echo("<pre class = 'prettyprint linenums lang-sql'>".$sqlquery.";</pre>");	
    
    	$conn = ConnectDB();
 ini_set("SQL_BIG_SELECTS", 1);
@@ -13,15 +16,21 @@ ini_set("SQL_BIG_SELECTS", 1);
   		$result = $conn->query($sqlquery);
   		$msc = microtime(true)-$msc;
   		if ($result) {
- 			echo('<h3> Ваши данные: </h3>');
+ 			if ($_POST['lang'] == "russian")
+				echo("<h3> Ваши данные: </h3>");
+			else
+				echo("<h3> Your data: </h3>");
   			
     		$numrows = (int)$_POST['TableSize'];
     		$k = 0;
     		while($row = $result->fetch_assoc()) {
 				$row_length = count($row);    			
     			if ($k == 0) {	
-					echo('<p>Первые '.$numrows.' строк:</p>');
-    				echo('<table><tr><th>#</th>');
+    				if ($_POST['lang'] == 'russian')
+						echo('<p>Первые '.$numrows.' строк:</p>');
+					else
+						echo('<p>First '.$numrows.' lines:</p>');
+					echo('<table><tr><th>#</th>');
 					for ($i = 0; $i < $row_length; $i++)
 						echo('<th>'.array_keys($row)[$i].'</th>');
 					echo('</tr>');    			
@@ -40,7 +49,10 @@ ini_set("SQL_BIG_SELECTS", 1);
   					break;
   			}
   			echo('</table>');
-  			echo("<p>Примерное время обработки запроса: ".round($msc, 3)." cек. </p>");
+  			if ($_POST['lang'] == 'russian')
+  				echo("<p>Примерное время обработки запроса: ".round($msc, 3)." cек. </p>");
+  			else
+  				echo("<p>Approximate running time ".round($msc, 3)." cек. </p>");
 		}
     	if(!$result)
   			echo('<br>Query '.$sqlquery.' error<br>');

@@ -1,162 +1,3 @@
-var fieldsets = [
-	["columns", "Колонки"],
-	["filters", "Фильтры"],
-	["functions", "Функции"],
-	["groups", "Группировка"]
-]
-
-
-
-
-
-
-var tables = [
-		[
-			"METEO_DATA_2015_WREGIONS",
-			"метеоданные", 
-			["DAYS", "REGION", "IND", "LAT", "LON", "TMIN", "TMEAN", "TMAX", "R"],
-			["дата", "номер региона", "индекс станции", "широта", "долгота", "t минимальная", "t средняя", "t максимальная", "осадки"]
-		], 
-		[
-			"GRID_DATA",
-			"данные по сетке",
-			["LAT", "LON", "UF", "POLARNIGHT", "SWAMPINESS", "PERMAFROSTDEC", "FLOOD", "EARTHQUAKE", "HEALTHIND", "SANECEST"],
-			["широта", "долгота", "ультрафиолет, баллы", "полярные день/ночь, баллы", "заболоченность территории, %", "протаивание вечной мерзлоты, м", "наводнения, баллы", "землятрясения, баллы", "индекс общественного здоровья", "санитарно-экологическая оценка территории"]		
-		], 
-		[
-			"REGIONS",
-			"регионы",
-			["REGION", "VALUE"],
-			["номер региона", "название региона"]
-		],
-		[
-			"STAT_MIGR_1997_2015",
-			"миграция (1997 - 2015)",
-			["REGION", "TYPE", "YEAR", "VALUE"],
-			["номер региона", "тип населения", "год", "значение"]
-		],
-		[
-			"STAT_MIGR_COEF_1997_2015",
-			"коэффициенты миграции (1997 - 2015)",
-			["REGION", "YEAR", "VALUE"],
-			["номер региона", "год", "значение"]
-		],
-		[
-			"STAT_NAT_INC_1990_2014",
-			"естественный прирост населения (1990 - 2014)",
-			["REGION", "SEX", "TYPE", "YEAR", "VALUE"],
-			["номер региона", "пол", "тип населения", "год", "значение"]
-		],
-		[
-			"STAT_OVERALL_INC_1990_2014",
-			"общий прирост населения (1990 - 2014)",
-			["REGION", "TYPE", "YEAR", "VALUE"],
-			["номер региона", "тип населения", "год", "значение"]
-		],
-		[
-			"STAT_LIFETIME_1990_2010",
-			"продолжительность жизни (1990-2010)",
-			["REGION", "SEX", "TYPE", "YEAR", "VALUE"],
-			["номер региона", "пол", "тип населения", "год", "значение"]
-		],
-		[
-			"STAT_NEONAT_2012",
-			"неонатальная смертность 2012",
-			["REGION", "VALUE"],
-			["номер региона", "значение"]
-		],
-		[
-			"STAT_CHILD_MORT_2013_2015",
-			"детская смертность (2013 - 2015)",
-			["REGION", "YEAR", "VALUE"],
-			["номер региона", "год", "значение"]
-		],
-		[
-			"STAT_MORT_1990_2012",
-			"смертность от болезней (1990 - 2012)",
-			["DECEASE", "REGION", "TYPE", "YEAR", "VALUE"],
-			["название болезни", "номер региона", "тип населения", "год", "значение"]
-		]
-]
-
-var names = [
-	["DAYS", "дата"],
-	["REGION", "номер региона (в алфавитном порядке)"],
-	["IND", "индекс станции"],
-	["LAT", "широта"],
-	["LON", "долгота"],
-	["TMIN", "t минимальная"],
-	["TMEAN", "t средняя"],
-	["TMAX","t максимальная"],
-	["R", "осадки"]
-]
-var date = [
-	["YEAR", 1800, 2100],
-	["MONTH", 1, 12], 
-	["DAY", 1, 31],
-]
-
-var functions = [
-	["COUNT", "количество"],
-	["SUM", "сумма"],
-	["AVG", "среднее"],
-	["STD", "стандартное отклонение"],
-	["MIN", "минимум"],
-	["MAX", "максимум"]
-]
-
-var groups = [
-	["REGION", "регионы", 
-		["REGIONNAME",
-			"MIGRATION",
-			"MIGR_COEFF",
-			"NATINCREASE",
-			"OVERALLINCREASE",
-			"LIFETIME",
-			"NEONATMORTALITY",
-			"CHILDMORTALITY",
-			"DECEASEMORTALITY" 
-		], 
-		["название региона", 
-			"миграция",
-			"коэффициент миграции",
-			"естественный прирост",
-			"общий прирост",
-			"продолжительность жизни",
-			"неонатальная смертность",
-			"детская смертность",
-			"смертность от болезней"
-		],
-		[
-			[0, 0],
-			[1997, 2015],
-			[1997, 2015],
-			[1990, 2014],
-			[1990, 2014],
-			[1990, 2010],
-			[0, 0],
-			[2013, 2015],
-			[1990, 2012]
-		]
-	],
-	["IND", "станции",["LAT", "LON"], ["широта", "долгота"]],
-	["YEAR(DAYS)", "годы"],
-	["MONTH(DAYS)", "месяцы"]
-] 
-
-var EDataCols = [
-	[[], []],
-	[["TYPE", "YEAR"], [["в пределах России", "Внешняя (для региона) миграция", "внутрирегиональная", "международная всего", "международная всего по региону", "межрегиональная", "миграция всего", "с другими зарубежными странами", "со странами СНГ,  Балтии и Грузии"], "годы"]],
-	[["YEAR"], ["годы"]],
-	[["SEX", "TYPE", "YEAR"], [["оба пола", "женщины", "мужчины"], ["все население", "городское население", "сельское население"], "годы"]],
-	[["TYPE", "YEAR"],[["общий", "город", "село"], "годы"]], 
-	[["SEX", "TYPE", "YEAR"], [["оба пола", "женщины", "мужчины"], ["все население", "городское население", "сельское население"], "годы"]],
-	[[], []],
-	[["YEAR"], ["годы"]],
-	[["DECEASE", "TYPE", "YEAR"], [["болезни органов дыхания", "болезни органов пищеварения", "внешние причины", "врожденные аномалии (пороки развития, деформации и хромосомные нарушения)", "всего умерших от всех причин", "некоторые инфекционные и паразитарные болезни", "отдельные состояния", "возникающие в перинатальном периоде"],["все население", "городское население", "сельское население"], "годы"]]
-]
-
-
 var FormSerialised = ["","","",""];
 var AdFormData = [{}, {}, {}, {}];
 
@@ -169,7 +10,6 @@ function getFormDataArray(form) {
 		if (isEmpty(dataObj[dataArray[i].name])) 
 			dataObj[dataArray[i].name] = [];
   		dataObj[dataArray[i].name].push(dataArray[i].value);
-  		//alert(dataArray[i].name + ": " + dataObj[dataArray[i].name]);
 	}
 	return dataObj;
 }
@@ -207,20 +47,20 @@ function checkDate(method) {
 function ValidateFormJS(primaryTable) {
 	var count = 0;
 	var it = 0;
-	while(primaryTable != tables[it][0])
+	while(primaryTable != tables[it].Name)
 		it++;
 	
-	for (i = 0; i < names.length; i++) 
-		if ($("." + primaryTable + ".columns#"  + tables[it][2][i] + ":checked").length == 1) 
+	for (i = 0; i < tables[it].Cols.length; i++) 
+		if ($("." + primaryTable + ".columns#"  + tables[it].Cols[i].Name + ":checked").length == 1) 
 			count++;
 	if (count == 0)
 		return -2;
 		
 	if (it == 0 && !checkDate(document.getElementById("method").selectedIndex))
 		return 0;
-	for (i = 0; i < tables[it][2].length; i++) {
-		if (!isEmpty($("." + primaryTable + ".filters#l"  + tables[it][2][i]).val()) && !isEmpty($("." + primaryTable + ".filters#r"  + tables[it][2][i]).val())){
-			var x = parseFloat($("." + primaryTable + ".filters#r"  + tables[it][2][i]).val()) - parseFloat($("." + primaryTable + ".filters#l"  + tables[it][2][i]).val());
+	for (i = 0; i < tables[it].Cols.length; i++) {
+		if (!isEmpty($("." + primaryTable + ".filters#l"  + tables[it].Cols[i].Name).val()) && !isEmpty($("." + primaryTable + ".filters#r"  + tables[it].Cols[i].Name).val())){
+			var x = parseFloat($("." + primaryTable + ".filters#r"  + tables[it].Cols[i].Name).val()) - parseFloat($("." + primaryTable + ".filters#l"  + tables[it].Cols[i].Name).val());
 			if (x < 0)
 				return i;
 		}
@@ -231,10 +71,10 @@ function ValidateFormJS(primaryTable) {
 function ValidateAdFormJS(i) {
 	if (i != 0)
 		return -1;
-	for (j = 1; j < groups[0][2].length; j++){ 
-		if (!isEmpty(AdFormData[i][groups[0][2][j] + "YEARL"])  
-			&& !isEmpty(AdFormData[i][groups[0][2][j] + "YEARR"])
-			&& +AdFormData[i][groups[0][2][j] + "YEARL"] > +AdFormData[i][groups[0][2][j] + "YEARR"]) 
+	for (j = 1; j < groups[0].TbCoParams.length; j++){ 
+		if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARL"])  
+			&& !isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARR"])
+			&& +AdFormData[0][groups[0].TbCoParams[j] + "YEARL"] > +AdFormData[0][groups[0].TbCoParams[j] + "YEARR"]) 
 				return j;
 	}
 	return -1;	
@@ -257,65 +97,76 @@ function resetHiddenPart() {
 }
    
 function customDialog(i) {
-   if (groups[i].length > 2) {
+   if (i < 2) {
  		var s = 0;
-		var str = "<form  class = 'AdForm' id='" + groups[i][0] + "'>";
-		for (j = 0; j < groups[i][2].length; j++){ 
-			str += "<p><input type = 'checkbox' class = '" + groups[i][0] + "List' name = '" + groups[i][0] + "List[]' value= '" 
-				+ groups[i][2][j] + "'";
+		var str = "<form  class = 'AdForm' id='" + groups[i].TbName + "'>";
+		for (j = 0; j < groups[i].TbCoParams.length; j++){ 
+			str += "<p><input type = 'checkbox' class = '" + groups[i].TbName + "List' name = '" + groups[i].TbName + "List[]' value= '" 
+				+ groups[i].TbCoParams[j] + "'";
 			var hidden = " hidden ";
-			if (!isEmpty(AdFormData[i][groups[i][0] + "List[]"]) && AdFormData[i][groups[i][0] + "List[]"][s] == groups[i][2][j]) {
+			if (!isEmpty(AdFormData[i][groups[i].TbName + "List[]"]) && AdFormData[i][groups[i].TbName + "List[]"][s] == groups[i].TbCoParams[j]) {
 				str += " checked ";
 				hidden = "";
 				s++;
 			}
-			str += "> " + groups[i][3][j] + "</p>"
+			str += ">"
+			str +=  "<label for = '' id = 'GroupLists'></label></p>"
 			if (j > 0 && i == 0) {
-				str += "<div id = '" + groups[i][2][j] + "'" + hidden +">";
-				str += "<fieldset class = 'regionsGrouping'><legend>Функции</legend>";
-				str += "<input type = 'radio' name = '" + groups[0][2][j] + "Function[]' class = 'REGIONFunctions' value = 'DEFAULT' id = 'DEFAULT'";
-				if (isEmpty(AdFormData[0][groups[0][2][j] + "Function[]"]) 
-					|| (!isEmpty(AdFormData[0][groups[0][2][j] + "Function[]"]) && AdFormData[0][groups[0][2][j] + "Function[]"][0] == "DEFAULT")) 
+				str += "<div id = '" + groups[0].TbCoParams[j] + "'" + hidden +">";
+				str += "<fieldset class = 'regionsGrouping'><legend id = 'Functions'></legend>";
+				str += "<input type = 'radio' name = '" + groups[0].TbCoParams[j] + "Function[]' class = 'REGIONFunctions' value = 'DEFAULT' id = 'DEFAULT'";
+				if (isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "Function[]"]) 
+					|| (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "Function[]"]) && AdFormData[0][groups[0].TbCoParams[j] + "Function[]"][0] == "DEFAULT")) 
 					str += " checked ";				
-				str += ">значение</br>";					
+				str += ">"
+				str += "<label for = 'DEFAULT' id = 'DEFAULT'></label></br>";					
 				for (k = 0; k < functions.length; k++) {
-					str += "<input type = 'radio' name = '" + groups[0][2][j] + "Function[]' class = 'REGIONFunctions' value = '" 
+					str += "<input type = 'radio' name = '" + groups[0].TbCoParams[j] + "Function[]' class = 'REGIONFunctions' value = '" 
 						+ functions[k][0] + "' id = '"+ functions[k][0] + "'";
-					if (!isEmpty(AdFormData[0][groups[0][2][j] + "Function[]"]) && AdFormData[0][groups[0][2][j] + "Function[]"][0] == functions[k][0]) 
+					if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "Function[]"]) && AdFormData[0][groups[0].TbCoParams[j] + "Function[]"][0] == functions[k][0]) 
 						str += " checked ";	
-					str += ">" + functions[k][1] + "</br>";	
-				}					
+					str += ">"
+					str += "<label for = '" + functions[k][0] + "' id = 'functions'></label></br>";	
+				}		
+				for ( k = 2; k < tables.length; k++){
+				
+				}				
+				
+				//filters
 				if (EDataCols[j][0].length > 0) {
-					str += "</fieldset><fieldset class = 'regionsGrouping'><legend>Фильтры</legend>";
+					str += "</fieldset><fieldset class = 'regionsGrouping'><legend id = 'FiltersShort'></legend>";
 					for (k = 0; k < EDataCols[j][0].length - 1; k++) {
 						var selected = "";
-						str += "<p><select  name = '" + groups[0][2][j] + EDataCols[j][0][k] + "'>";
+						str += "<p><select  class = 'CustomDialogSelect' name = '" + groups[0].TbCoParams[j] + EDataCols[j][0][k] + "'>";
 						for (l = 0; l < EDataCols[j][1][k].length; l++) {
-							if (!isEmpty(AdFormData[0][groups[0][2][j] + EDataCols[j][0][k]]) && AdFormData[0][groups[0][2][j] + EDataCols[j][0][k]] == EDataCols[j][1][k][l])
+							if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + EDataCols[j][0][k]]) && AdFormData[0][groups[0].TbCoParams[j] + EDataCols[j][0][k]] == EDataCols[j][1][k][l])
 								selected  = " selected='selected' ";
 							else 
 								selected  = "";
-   						str += "<option value='" + EDataCols[j][1][k][l] + "'" + selected +  ">" + EDataCols[j][1][k][l] + "</option>";
+   						str += "<option value='" + EDataCols[j][1][k][l] + "'" + selected +  "></option>";
    					}
    					str += "</select></p>";
    				}
    				var yearValueL = "";
    				var yearValueR = "";
-   				if (!isEmpty(AdFormData[0][groups[0][2][j] + "YEARL"])) 
-   					yearValueL = " value = " + AdFormData[0][groups[0][2][j] + "YEARL"];
-   				if (!isEmpty(AdFormData[0][groups[0][2][j] + "YEARR"])) 
-						yearValueR = " value = " + AdFormData[0][groups[0][2][j] + "YEARR"];   				
+   				if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARL"])) 
+   					yearValueL = " value = " + AdFormData[0][groups[0].TbCoParams[j] + "YEARL"];
+   				if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARR"])) 
+						yearValueR = " value = " + AdFormData[0][groups[0].TbCoParams[j] + "YEARR"];   				
    				str += "<p>";
-					str += "от <input type='number'  step = '1' min = '" + groups[0][4][j][0] + "' max = '" + groups[0][4][j][1] + "' lang = 'eng' placeholder = 'min' name = '" + groups[0][2][j] + "YEARL' id = 'l" + groups[0][2][j] + "YEAR'" +  yearValueL + "> "; 
-					str += "до <input type='number'  step = '1' min = '"+ groups[0][4][j][0] + "' max = '" + groups[0][4][j][1] + "' lang = 'eng' placeholder = 'max' name = '" + groups[0][2][j] + "YEARR' id = 'r" + groups[0][2][j] + "YEAR'" + yearValueR + "> ";
-   				str += " годы</p></fieldset>";						
+   				str += "<label  for = 'l" + groups[0].TbCoParams[j] + "YEAR'  class = 'from'></label>"
+					str += "<input type='number'  step = '1' min = '" + groups[0].Limits[j][0] + "' max = '" + groups[0].Limits[j][1] + "' lang = 'eng' placeholder = 'min' name = '" + groups[0].TbCoParams[j] + "YEARL' id = 'l" + groups[0].TbCoParams[j] + "YEAR'" +  yearValueL + "> "; 
+					str += "<label  for = 'r" + groups[0].TbCoParams[j] + "YEAR'  class = 'to'></label>"
+					str += "<input type='number'  step = '1' min = '"+ groups[0].Limits[j][0] + "' max = '" + groups[0].Limits[j][1] + "' lang = 'eng' placeholder = 'max' name = '" + groups[0].TbCoParams[j] + "YEARR' id = 'r" + groups[0].TbCoParams[j] + "YEAR'" + yearValueR + "> ";
+   				str += "<label id = 'CustomDialogYears'></label></p></fieldset>";						
 				}
 				str += "</div>";
 			}
 		}
 		str += '<input type="submit" name = "SubmitRegions" value="Ок" class = "SubmitRegions">';
 		str += "</form>";
-
+		
+		
 		$("#your-dialog").html(str);
 		$("#your-dialog")
 			.dialog({
@@ -332,6 +183,350 @@ function customDialog(i) {
            	}
       });
       $("#your-dialog").dialog("open");
-      
+      translateForm();
 	}   	
+}
+function translateForm(){
+	//translate legends
+	var legends = document.getElementsByTagName("legend");
+	for(i = 0; i < legends.length; i++){
+		var legendType = legends[i].id;
+		var patch = legendText[legendType][0];
+		if (lang == "english")
+			patch = legendText[legendType][1];
+		legends[i].innerHTML = patch;
+	}
+		
+	//translate names of tables
+	for (i = 0; i < tables.length; i++){
+		var tableName = tables[i].RuName;
+		if (lang == "english")
+			tableName = tables[i].EnName;
+		document.getElementById("chooseTable").options[i].text = tableName;
+	}
+	
+	//from
+	var fromCol = $("label.from");
+	for (i = 0; i < fromCol.length; i++){
+		var patch = "от ";
+		if (lang == "english")
+			patch = "from ";
+		fromCol[i].innerHTML = patch;
+	}
+	
+	//to
+	var toCol = $("label.to");
+	for (i = 0; i < toCol.length; i++){
+		var patch = "до ";
+		if (lang == "english")
+			patch = "to ";
+		toCol[i].innerHTML = patch;
+	}
+	
+	//variants for date	
+	for (i = 0; i < 2; i++){
+		var patch = "способ " + (i + 1);
+		if (lang == "english")
+			patch = "method " + (i + 1);
+		document.getElementById("method").options[i].text = patch;
+	}
+	
+	//columns
+	var columnsCol = $("label.tableColumns");
+	var CustomDialogSelects = document.getElementsByClassName("CustomDialogSelect");
+	var pos = 0;
+	var pos1 = 0
+	for (i = 0; i < tables.length; i++)
+		for (j = 0; j < tables[i].Cols.length; j++){
+			var patch = tables[i].Cols[j].RuName;
+			if (lang == "english")
+				patch = tables[i].Cols[j].EnName;
+			columnsCol[pos].innerHTML = patch;
+			if (tables[i].Cols[j].RuOptions){
+				for (k = 0; k < tables[i].Cols[j].RuOptions.length; k++){
+					patch = 	tables[i].Cols[j].RuOptions[k];
+					if (lang == "english")
+						patch = tables[i].Cols[j].EnOptions[k];
+					indicator = tables[i].Name + tables[i].Cols[j].Name;
+					document.getElementById(indicator).options[k].text = patch;
+					if (CustomDialogSelects.length > 0) {
+						CustomDialogSelects[pos1].options[k].text = patch;
+					}
+
+				}
+				pos1++
+			}
+			
+				
+			pos++;
+		}
+		
+	
+	//functions
+	var functionsCol = $("label#functions");
+	for (i = 0; i < functionsCol.length; i++){
+		var patch = functions[i % functions.length][1];
+		if (lang == "english")
+			patch = functions[i % functions.length][2];
+		functionsCol[i].innerHTML = patch;
+	}
+	
+	var functionsCol = $("label#DEFAULT");
+	for (i = 0; i < functionsCol.length; i++){
+		var patch = "значение";
+		if (lang == "english")
+			patch = "value";
+		functionsCol[i].innerHTML = patch;
+	}
+	
+	//groups
+	var groupsCol = $("label.groups");
+	for (i = 0; i < groups.length; i++) {
+		var patch = groups[i].RuName;
+		if (lang == "english")
+			patch = groups[i].EnName;
+		groupsCol[i].innerHTML = patch;
+	}
+	
+	//group lists in custom dialog
+	var groupLists = $("label#GroupLists")
+	if (groupLists.length == 9)
+		for (j = 0; j < 9; j++){
+			patch = groups[0].RuCoParams[j]
+			if (lang == "english")
+				patch = groups[0].EnCoParams[j]
+			groupLists[j].innerHTML = patch
+		}
+	else if (groupLists.length == 2)
+		for (j = 0; j < 2; j++){
+			patch = groups[1].RuCoParams[j]
+			if (lang == "english")
+				patch = groups[1].EnCoParams[j]
+			groupLists[j].innerHTML = patch
+		}
+	
+	var customDialogYears = $("label#CustomDialogYears")
+	patch = "годы"
+	if (lang == "english")
+		patch = "years"
+	for (i = 0; i < customDialogYears.length; i++) 
+		customDialogYears[i].innerHTML = patch
+		
+
+	for (i = 0; i < 2; i++) {
+		if ($("input#Group" + groups[i].TbName).is(':checked')) {
+			s = 0
+			str = ""
+			for (j = 0; j < groups[i].TbCoParams.length; j++){
+				if (!isEmpty(AdFormData[i][groups[i].TbName + "List[]"]) && AdFormData[i][groups[i].TbName + "List[]"][s] == groups[i].TbCoParams[j]) {
+					if(str.length == 0)
+						str += "+ ";
+					else 
+						str += ", ";
+					if (lang == "russian")
+          			str += groups[i].RuCoParams[j];
+         		else 
+           			str += groups[i].EnCoParams[j];
+           		s++
+				}
+			}
+			if (str.length != 0) 
+				str += ";"
+      	patch = " изменить"
+      	if (lang == "english")
+      	patch = " change"
+   		str += "<a class = 'AdFormChange' id = '" + groups[i].TbName + "ListChange'>" + patch + "</a>"
+   		document.getElementById("Group" + groups[i].TbName + "List").innerHTML = str;
+		}   
+   	else
+   		document.getElementById("Group" + groups[i].TbName + "List").innerHTML = ""; 		
+	}
+	
+	
+	// regression output parameters and submit button
+	if (lang == "english"){
+		document.title = "Database"
+		$("label#LR").text("count angular coefficient of the trend line");
+		$("label#preview").text("preview");
+		$("label#output").text("output into file");
+		$("label#numLines").text("number of lines in the page");
+		$("label#fileName").text("filename");		
+		
+		$("input#submitAll").val("Submit");
+      if ($("#your-dialog").text() != ""){
+			$("#your-dialog").dialog({
+        			title: "Parameters that can be shown together with group by parameter\n",
+      	});
+      	$('input.SubmitRegions').val('Ok')
+      }
+	}	
+	else{
+		document.title = "База данных"
+		$("label#LR").text("посчитать коэффициент наклона линии тренда");
+		$("label#preview").text("предпросмотр");
+		$("label#output").text("вывод в файл");
+		$("label#numLines").text("количество строк на странице");
+		$("label#filename").text("имя файла");
+		
+		$("input#submitAll").val("Применить");
+		if ($("#your-dialog").text() != ""){
+			$("#your-dialog").dialog({
+        			title: "Параметры, которые могут быть выведены вместе с параметром группировки\n",
+      	});
+      	$('input.SubmitRegions').val('Ок')
+      }
+	}	
+}
+
+function fillForm(){
+	
+	//TABLES
+	var text = "<legend id = 'Tables'></legend>";
+	
+	text += "<select class = 'short' id = 'chooseTable' name = 'primaryTable' autocomplete = 'off'>";	
+	for (i = 0; i < tables.length; i++){
+		text += "<option value = '" + tables[i].Name + "'>" + tables[i].RuName + "</option>";
+	}	
+	text += "</select>";
+	
+	$("fieldset.main#tables").html(text);
+	
+	
+	//MAIN TABLE
+	//FILTERS
+	text = "<legend id = 'Filters'></legend>";
+
+	//date
+	text += "<p>"
+	
+	text += "<label  for = 'lYEARl'  class = 'from'></label>"
+	text += "<input  type='number'                          id = 'lYEARl'   name = 'YEAR[]'    min = '1800'   max = '2100'  placeholder = 'year1' >"
+	text += "<input  type='number'                          id = 'lMONTHl'  name = 'MONTH[]'   min = '1'      max = '12'    placeholder = 'month1'>"
+	text += "<input  type='number'                          id = 'lDAYl'    name = 'DAY[]'     min = '1'      max = '31'    placeholder = 'day1'  >"
+	
+	text += "<label  for = 'rYEARr'  class = 'to'></label>"; 
+	text += "<input  type='number'                          id = 'rYEARr'   name = 'YEAR[]'    min = '1800'   max = '2100'  placeholder = 'year2'  >";
+	text += "<input  type='number'                          id = 'rMONTHr'  name = 'MONTH[]'   min = '1'      max = '12'    placeholder = 'month2' >";
+	text += "<input  type='number'                          id = 'rDAYr'    name = 'DAY[]'     min = '1'      max = '31'    placeholder = 'day2'   >";
+
+	text += "<input  type='checkbox' class = 'cols'         id = 'DAYS'     name = 'Columns[]' value = 'DAYS'>";
+	text += "<label  for = 'DAYS'    class = 'tableColumns'></label>"
+	text += "</p>"
+	 
+	//date methods
+	text += "<select                 class = 'short'        id = 'method'   name = 'DateType'>"
+   text += "<option                                                                           value='method1'></option>"
+   text += "<option                                                                           value='method2'></option>"
+	text += "</select>"
+	
+	text += "<a href = '/INFO/info.html'>*</a>"
+
+	//other filters
+	for (i = 1; i < tables[0].Cols.length; i++) {
+		var curFilter = tables[0].Cols[i].Name;
+		text += "<p>"
+		
+		text += "<label for = 'l" + curFilter + "'  class = 'from'        ></label>"
+		text += "<input type = 'number'             class = 'METEO_DATA_2015_WREGIONS filters'      id = 'l" + curFilter + "'  name = '" + curFilter + "[]' step = '0.1' lang = 'eng' placeholder = 'min'> "
+		
+		text += "<label for = 'r" + curFilter + "'  class = 'to'          ></label>"
+		text += "<input type = 'number'             class = 'METEO_DATA_2015_WREGIONS filters'      id = 'r" + curFilter + "'  name = '" + curFilter + "[]' step = '0.1' lang = 'eng' placeholder = 'max'> "
+		
+		text += "<input type = 'checkbox'           class = 'METEO_DATA_2015_WREGIONS columns cols' id = '"  + curFilter + "'  name = 'Columns[]'           value = '"  + curFilter + "'>"
+		text += "<label for = '" + curFilter + "'   class = 'tableColumns'></label>"
+		
+		text += "</p>"
+	}
+	
+	//print into filters fieldset
+	$("fieldset.main#filters").html(text);
+	
+	
+	//FUNCTIONS
+	text = "<legend id = 'Functions'></legend>";
+	
+	for (i = 0; i < functions.length; i++) {
+		var curFnc = functions[i][0];
+		text += "<input type = 'checkbox'           class = 'METEO_DATA_2015_WREGIONS functions'    id = '"  + curFnc +    "'  name = 'Functions[]'         value = '" + curFnc + "'>"
+		text += "<label for = '" + curFnc + "'                                                      id = 'functions' ></label>"
+		text += "<br>"
+	}
+	
+	//print into functions fieldset
+	$("fieldset.main#functions").html(text);
+	
+	
+	//GROUP BY
+	text = "<legend id = 'GroupBy'></legend>";
+	
+	for (i = 0; i < groups.length; i++) {
+		var curGrp = groups[i].TbName
+		
+		//groups without lists
+		notLR = "";
+		if (i > 1)
+			notLR = "notLR";
+		
+		text += "<p                                 class = '" + notLR + "'>"
+		text += "<input type = 'checkbox'           class = 'Group " + notLR + "'                   id = 'Group" + curGrp + "'name = 'Groups[]'             value = '" + curGrp + "' autocomplete = 'off'>"
+		text += "<label for = 'Group" + curGrp + "' class = 'groups'></label>"
+		text += "</p>";
+		
+		//list of params output together with curGrp
+		text += "<p                                 class = 'GroupLists'                            id = Group" + curGrp + "List></p>";
+	}
+	
+	//print into groups fieldset
+	$("fieldset.main#groups").html(text);
+	
+	
+	//OTHER TABLES
+	for (i = 1; i < tables.length; i++) {	
+		var currTable = tables[i];	
+		text = "<div class = 'forTable' id = '" + currTable.Name + "' hidden></div>";
+		$("div#otherTables").append(text);
+		
+		//columns		
+		text = "<fieldset id = 'columns' class = 'main " + currTable.Name + "'></fieldset>";
+		$("div#" + currTable.Name).append(text);
+			
+		text = "<legend id = 'Filters'></legend><table class = 'columns_filters'>";
+		var k = 0;
+		for (p = 0; p < currTable.Cols.length; p++) {
+			text += "<tr><td class = 'left'>";
+			if (currTable.Cols[p].RuOptions) {
+				text += "<select class = '" + currTable.Name + " filters' id = '" + currTable.Name + currTable.Cols[p].Name + "' name = '" + currTable.Name + currTable.Cols[p].Name + "'>";
+				for (l = 0; l < currTable.Cols[p].RuOptions.length; l++) {
+   				text += "<option value = '" + currTable.Cols[p].RuOptions[l] + "'></option>";
+   			}
+   			text += "</select>";		
+			}
+	   	else if (i != 2 || p != 1){
+   			text += "<label for = 'l" + currTable.Cols[p].Name + "' class = 'from'></label>";
+				text += "<input type='number' class = '" + currTable.Name +" filters' id = 'l" + currTable.Cols[p].Name + "' name = '" + currTable.Name + currTable.Cols[p].Name + "L' step = '1' min = '' max = '' lang = 'eng' placeholder = 'min'> "; 
+				text += "<label for = 'r" + currTable.Cols[p].Name + "' class = 'to'></label>";					
+				text += "<input type='number' class = '" + currTable.Name +" filters' id = 'r" + currTable.Cols[p].Name + "' name = '" + currTable.Name + currTable.Cols[p].Name + "R' step = '1' min = '' max = '' lang = 'eng' placeholder = 'max'>";				
+			}
+			text += "</td><td><input type = checkbox class = '" + currTable.Name +" columns' id = '" + currTable.Cols[p].Name + "' name = '" + currTable.Name + "Columns[]' value = '" + currTable.Cols[p].Name + "'><label for = '"
+			 + currTable.Cols[p].Name + "' class = 'tableColumns'></label></td></tr>";
+		}		
+		text += "</table>";
+		$("fieldset#columns." + currTable.Name).html(text);
+		
+		//functions
+		if (i != 2) {
+			text = "<fieldset id = 'functions' class = 'main " + currTable.Name + "'></fieldset>";
+			$("div#" + currTable.Name).append(text);
+			text = "<legend id = 'Functions'></legend>";
+			for (k = 0; k < functions.length; k++)
+				text += "<input type = checkbox class = '" + currTable.Name +" functions' id = '" + functions[k][0] +"' name = '" + currTable.Name + "Functions[]' value = '" + functions[k][0] + "'><label id = 'functions' for = '" 
+					+ functions[k][0] + "'></label><br>";
+			$("fieldset#functions." + currTable.Name).html(text);
+		}
+	}	
+	
+	translateForm();
+
+
+
 }
