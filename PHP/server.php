@@ -10,7 +10,7 @@
 			 echo("<h3> Your query: </h3>");
 		echo("<pre class = 'prettyprint linenums lang-sql'>".$sqlquery.";</pre>");	
    
-   	$conn = ConnectDB();
+   	$conn = ConnectDB($_POST["db"]);
 ini_set("SQL_BIG_SELECTS", 1);
 		$msc = microtime(true);
   		$result = $conn->query($sqlquery);
@@ -52,7 +52,7 @@ ini_set("SQL_BIG_SELECTS", 1);
   			if ($_POST['lang'] == 'russian')
   				echo("<p>Примерное время обработки запроса: ".round($msc, 3)." cек. </p>");
   			else
-  				echo("<p>Approximate running time ".round($msc, 3)." cек. </p>");
+  				echo("<p>Approximate running time ".round($msc, 3)." s. </p>");
 		}
     	if(!$result)
   			echo('<br>Query '.$sqlquery.' error<br>');
@@ -69,7 +69,7 @@ ini_set("SQL_BIG_SELECTS", 1);
 		else
 			fwrite($myfile, 'data".$_SERVER[\'REQUEST_TIME\'].".csv'); 
 		fwrite($myfile, '");
-			$conn = ConnectDB();
+			$conn = ConnectDB("'.$_POST["db"].'");
 			ini_set("max_execution_time", 300);
    		ini_set("memory_limit", "-1");
 			$result = $conn->query(\''.$sqlquery.'\');'.

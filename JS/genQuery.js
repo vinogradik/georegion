@@ -45,6 +45,9 @@ function checkDate(method) {
 }
 
 function ValidateFormJS(primaryTable) {
+	var tables = databases[1].slice();
+	if (localStorage.getItem("db") == "stations_regions")
+		tables = databases[0].slice();
 	var count = 0;
 	var it = 0;
 	while(primaryTable != tables[it].Name)
@@ -97,6 +100,9 @@ function resetHiddenPart() {
 }
    
 function customDialog(i) {
+	var tables = databases[1].slice();
+	if (localStorage.getItem("db") == "stations_regions")
+		tables = databases[0].slice();
    if (i < 2) {
  		var s = 0;
 		var str = "<form  class = 'AdForm' id='" + groups[i].TbName + "'>";
@@ -187,6 +193,21 @@ function customDialog(i) {
 	}   	
 }
 function translateForm(){
+	if (lang == "english") { 
+		$("#russian").show();
+		$("#english").hide();
+		$("#back").html("back");
+	}
+	else{
+		$("#english").show();
+		$("#russian").hide();
+		$("#back").html("назад");
+	}
+	document.getElementById("dbname").innerHTML = localStorage.getItem("db");
+	
+	var tables = databases[1].slice();
+	if (localStorage.getItem("db") == "stations_regions")
+		tables = databases[0].slice();
 	//translate legends
 	var legends = document.getElementsByTagName("legend");
 	for(i = 0; i < legends.length; i++){
@@ -198,11 +219,13 @@ function translateForm(){
 	}
 		
 	//translate names of tables
-	for (i = 0; i < tables.length; i++){
-		var tableName = tables[i].RuName;
-		if (lang == "english")
-			tableName = tables[i].EnName;
-		document.getElementById("chooseTable").options[i].text = tableName;
+	if (tables.length > 1) {
+		for (i = 0; i < tables.length; i++){
+			var tableName = tables[i].RuName;
+			if (lang == "english")
+				tableName = tables[i].EnName;
+			document.getElementById("chooseTable").options[i].text = tableName;
+		}
 	}
 	
 	//from
@@ -379,18 +402,23 @@ function translateForm(){
 }
 
 function fillForm(){
-	
+	var tables = databases[1].slice();
+	if (localStorage.getItem("db") == "stations_regions")
+		tables = databases[0].slice();
 	//TABLES
-	var text = "<legend id = 'Tables'></legend>";
+	if (tables.length > 1) {
+		var text = "<legend id = 'Tables'></legend>";
 	
-	text += "<select class = 'short' id = 'chooseTable' name = 'primaryTable' autocomplete = 'off'>";	
-	for (i = 0; i < tables.length; i++){
-		text += "<option value = '" + tables[i].Name + "'>" + tables[i].RuName + "</option>";
-	}	
-	text += "</select>";
+		text += "<select class = 'short' id = 'chooseTable' name = 'primaryTabl' autocomplete = 'off'>";	
+		for (i = 0; i < tables.length; i++){
+			text += "<option value = '" + tables[i].Name + "'>" + tables[i].RuName + "</option>";
+		}	
+		text += "</select>";
 	
-	$("fieldset.main#tables").html(text);
-	
+		$("fieldset.main#tables").html(text);
+	}
+	else 
+		$("fieldset.main#tables").hide();
 	
 	//MAIN TABLE
 	//FILTERS
@@ -409,7 +437,7 @@ function fillForm(){
 	text += "<input  type='number'                          id = 'rMONTHr'  name = 'MONTH[]'   min = '1'      max = '12'    placeholder = 'month2' >";
 	text += "<input  type='number'                          id = 'rDAYr'    name = 'DAY[]'     min = '1'      max = '31'    placeholder = 'day2'   >";
 
-	text += "<input  type='checkbox' class = 'cols'         id = 'DAYS'     name = 'Columns[]' value = 'DAYS'>";
+	text += "<input  type='checkbox' class = '" + tables[0].Name + " columns cols'         id = 'DAYS'     name = 'Columns[]' value = 'DAYS'>";
 	text += "<label  for = 'DAYS'    class = 'tableColumns'></label>"
 	text += "</p>"
 	 
@@ -427,12 +455,12 @@ function fillForm(){
 		text += "<p>"
 		
 		text += "<label for = 'l" + curFilter + "'  class = 'from'        ></label>"
-		text += "<input type = 'number'             class = 'METEO_DATA_2015_WREGIONS filters'      id = 'l" + curFilter + "'  name = '" + curFilter + "[]' step = '0.1' lang = 'eng' placeholder = 'min'> "
+		text += "<input type = 'number'             class = '" + tables[0].Name + " filters'      id = 'l" + curFilter + "'  name = '" + curFilter + "[]' step = '0.1' lang = 'eng' placeholder = 'min'> "
 		
 		text += "<label for = 'r" + curFilter + "'  class = 'to'          ></label>"
-		text += "<input type = 'number'             class = 'METEO_DATA_2015_WREGIONS filters'      id = 'r" + curFilter + "'  name = '" + curFilter + "[]' step = '0.1' lang = 'eng' placeholder = 'max'> "
+		text += "<input type = 'number'             class = '" + tables[0].Name + " filters'      id = 'r" + curFilter + "'  name = '" + curFilter + "[]' step = '0.1' lang = 'eng' placeholder = 'max'> "
 		
-		text += "<input type = 'checkbox'           class = 'METEO_DATA_2015_WREGIONS columns cols' id = '"  + curFilter + "'  name = 'Columns[]'           value = '"  + curFilter + "'>"
+		text += "<input type = 'checkbox'           class = '" + tables[0].Name + " columns cols' id = '"  + curFilter + "'  name = 'Columns[]'           value = '"  + curFilter + "'>"
 		text += "<label for = '" + curFilter + "'   class = 'tableColumns'></label>"
 		
 		text += "</p>"

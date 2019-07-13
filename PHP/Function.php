@@ -9,6 +9,15 @@ $Names = array(
 		array("TMEAN", "t средняя"),
 		array("TMAX","t максимальная"),
 		array("R", "осадки"),
+		array("CLOUDS", "общее количество облачности, баллы"),
+		array("WINDAV", "средняя скорость ветра, м/с"),
+		array("WINDMAX", "максимальная скорость ветра, м/с"),
+		array("TGROUND", "температура поверхности почвы"),
+		array("PVAPOR", "парциальное давление водяного пара, гПа"),
+		array("RELHUM", "относительная влажность воздуха, %"),
+		array("TDEWPOINT", "температура точки росы"),
+		array("PSTNLVL",  "атмосферное давление на уровне станции, гПа"),
+                array("SNOW_DEPTH",  "высота снега, см"),
 	);
 	
 $Date = array(
@@ -20,10 +29,10 @@ $Date = array(
 $Tables = array(
 		array ("REGIONNAME", "REGIONS"),
 		array ("MIGRATION", "STAT_MIGR_1997_2015"),
-		array ("MIGR_COEFF", "STAT_MIGR_COEF_1997_2015"),
-		array ("NATINCREASE", "STAT_NAT_INC_1990_2014"),
+		array ("MIGR_COEFF", "STAT_MIGR_COEF_1997_2017"),
+		array ("NATINCREASE", "STAT_NAT_INC_1990_2017"),
 		array ("OVERALLINCREASE", "STAT_OVERALL_INC_1990_2014"),
-		array ("LIFETIME", "STAT_LIFETIME_1990_2010"),
+		array ("LIFETIME", "STAT_LIFETIME_1990_2017"),
 		array ("NEONATMORTALITY", "STAT_NEONAT_2012"),
 		array ("CHILDMORTALITY", "STAT_CHILD_MORT_2013_2015"),
 		array ("DECEASEMORTALITY", "STAT_MORT_1990_2012")
@@ -33,7 +42,7 @@ $EDataCols = array(
 	array(),
 	array(array("TYPE", "YEAR"), array(array("в пределах России", "Внешняя (для региона) миграция", "внутрирегиональная", "международная всего", "международная всего по региону", "межрегиональная", "миграция всего", "с другими зарубежными странами", "со странами СНГ,  Балтии и Грузии"), "годы")),
 	array(array("YEAR"), array("годы")),
-	array(array("SEX", "TYPE", "YEAR"), array(array("оба пола", "женщины", "мужчины"), array("все население", "городское население", "сельское население"), "годы")),
+	array(array("SEX", "TYPE", "YEAR"), array(array("оба пола", "женщины", "мужчины"), array("общее", "город", "село"), "годы")),
 	array(array("TYPE", "YEAR"), array(array("общий", "город", "село"), "годы")), 
 	array(array("SEX", "TYPE", "YEAR"), array(array("оба пола", "женщины", "мужчины"), array("все население", "городское население", "сельское население"), "годы")),
 	array(),
@@ -43,7 +52,7 @@ $EDataCols = array(
 
 $FullTables = array(
 		array(
-			"METEO_DATA_2015_WREGIONS",
+			"METEO_DATA_2017_WSNOW",
 			"метеоданные", 
 			array("DAYS", "REGION", "IND", "LAT", "LON", "TMIN", "TMEAN", "TMAX", "R"),
 			array("дата", "номер региона", "индекс станции", "широта", "долгота", "t минимальная", "t средняя", "t максимальная", "осадки")
@@ -67,14 +76,14 @@ $FullTables = array(
 			array("номер региона", "тип населения", "год", "значение")
 		),
 		array(
-			"STAT_MIGR_COEF_1997_2015",
-			"коэффициенты миграции (1997 - 2015)",
+			"STAT_MIGR_COEF_1997_2017",
+			"коэффициенты миграции (1997 - 2017)",
 			array("REGION", "YEAR", "VALUE"),
 			array("номер региона", "год", "значение")
 		),
 		array(
-			"STAT_NAT_INC_1990_2014",
-			"естественный прирост населения (1990 - 2014)",
+			"STAT_NAT_INC_1990_2017",
+			"естественный прирост населения (1990 - 2017)",
 			array("REGION", "SEX", "TYPE", "YEAR", "VALUE"),
 			array("номер региона", "пол", "тип населения", "год", "значение")
 		),
@@ -85,8 +94,8 @@ $FullTables = array(
 			array("номер региона", "тип населения", "год", "значение")
 		),
 		array(
-			"STAT_LIFETIME_1990_2010",
-			"продолжительность жизни (1990-2010)",
+			"STAT_LIFETIME_1990_2017",
+			"продолжительность жизни (1990-2017)",
 			array("REGION", "SEX", "TYPE", "YEAR", "VALUE"),
 			array("номер региона", "пол", "тип населения", "год", "значение")
 		),
@@ -107,6 +116,12 @@ $FullTables = array(
 			"смертность от болезней (1990 - 2012)",
 			array("DECEASE", "REGION", "TYPE", "YEAR", "VALUE"),
 			array("название болезни", "номер региона", "тип населения", "год", "значение")
+		),
+		array(
+			"MODEL_DATA",
+			"модельные данные",
+			array("DAYS, LAT, LON, VALUE"),
+			array("дата", "широта", "долгота", "значение")
 		)
 );
 
@@ -202,10 +217,12 @@ function ValidateForm($Data) {
 
 
 function GenerateQuery($Data){
-	if ($Data['primaryTable'] == "METEO_DATA_2015_WREGIONS") 
+	if ($Data['primaryTabl'] == "METEO_DATA_2015_WREGIONS") 
 		return GenerateMeteoQuery($Data);
-	if ($Data['primaryTable'] == "GRID_DATA")
+	if ($Data['primaryTabl'] == "GRID_DATA")
 		return GenerateGridQuery($Data);
+	if ($Data['primaryTabl'] == "MODEL_DATA")
+		return GenerateModelQuery($Data);
 	return GenerateEcoQuery($Data);
 
 }
@@ -341,30 +358,30 @@ function GenerateGridQuery($Data) {
 function GenerateEcoQuery($Data) {
 	global $FullTables;
 	$query = "";
-	if (empty($Data[$Data["primaryTable"]."Functions"])) {
-		$query = "SELECT ".$Data[$Data["primaryTable"]."Columns"][0];
-		for ($i = 1; $i < count($Data[$Data["primaryTable"]."Columns"]); $i++)
-			$query .= ",\n\t".$Data[$Data["primaryTable"]."Columns"][$i];
+	if (empty($Data[$Data["primaryTabl"]."Functions"])) {
+		$query = "SELECT ".$Data[$Data["primaryTabl"]."Columns"][0];
+		for ($i = 1; $i < count($Data[$Data["primaryTabl"]."Columns"]); $i++)
+			$query .= ",\n\t".$Data[$Data["primaryTabl"]."Columns"][$i];
 	}
 	else { 
-		$query = "SELECT ".$Data[$Data["primaryTable"]."Functions"][0]."(".$Data[$Data["primaryTable"]."Columns"][0].")";
-		for ($i = 1; $i < count($Data[$Data["primaryTable"]."Columns"]); $i++)
-			$query .= ",\n\t".$Data[$Data["primaryTable"]."Functions"][0]."(".$Data[$Data["primaryTable"]."Columns"][$i].")";
+		$query = "SELECT ".$Data[$Data["primaryTabl"]."Functions"][0]."(".$Data[$Data["primaryTabl"]."Columns"][0].")";
+		for ($i = 1; $i < count($Data[$Data["primaryTabl"]."Columns"]); $i++)
+			$query .= ",\n\t".$Data[$Data["primaryTabl"]."Functions"][0]."(".$Data[$Data["primaryTabl"]."Columns"][$i].")";
 	}
-	$query .= "\nFROM ".$Data['primaryTable'];
+	$query .= "\nFROM ".$Data['primaryTabl'];
 
 	$j = 0;
-	while ($FullTables[$j][0] != $Data['primaryTable'])
+	while ($FullTables[$j][0] != $Data['primaryTabl'])
 		$j++;
 	
 	$subquery = "";
 	for ($l = 0; $l < count($FullTables[$j][2]); $l++) {	
-		if (!empty($Data[$Data['primaryTable'].$FullTables[$j][2][$l]."L"]))
-			$subquery .= $FullTables[$j][2][$l]." >= ".$Data[$Data["primaryTable"].$FullTables[$j][2][$l]."L"]."\n\tAND ";
-		if (!empty($Data[$Data['primaryTable'].$FullTables[$j][2][$l]."R"]))
-			$subquery .=$FullTables[$j][2][$l]." <= ".$Data[$Data["primaryTable"].$FullTables[$j][2][$l]."R"]."\n\tAND ";
-		if (!empty($Data[$Data['primaryTable'].$FullTables[$j][2][$l]])) 
-			$subquery .= $FullTables[$j][2][$l].' = "'.$Data[$Data["primaryTable"].$FullTables[$j][2][$l]].'"'."\n\tAND ";
+		if (!empty($Data[$Data['primaryTabl'].$FullTables[$j][2][$l]."L"]))
+			$subquery .= $FullTables[$j][2][$l]." >= ".$Data[$Data["primaryTabl"].$FullTables[$j][2][$l]."L"]."\n\tAND ";
+		if (!empty($Data[$Data['primaryTabl'].$FullTables[$j][2][$l]."R"]))
+			$subquery .=$FullTables[$j][2][$l]." <= ".$Data[$Data["primaryTabl"].$FullTables[$j][2][$l]."R"]."\n\tAND ";
+		if (!empty($Data[$Data['primaryTabl'].$FullTables[$j][2][$l]])) 
+			$subquery .= $FullTables[$j][2][$l].' = "'.$Data[$Data["primaryTabl"].$FullTables[$j][2][$l]].'"'."\n\tAND ";
 	}
 	if (!empty($subquery)) {
 		$subquery  = "\nWHERE ".$subquery;
@@ -372,10 +389,11 @@ function GenerateEcoQuery($Data) {
 	}	
 	$query .= $subquery;
 
-	if (!empty($Data[$Data["primaryTable"]."Functions"])) 
+	if (!empty($Data[$Data["primaryTabl"]."Functions"])) 
 		$query .= "\nGROUP BY REGION";
 	return $query;
 }
+
 
 
 
@@ -456,7 +474,7 @@ function GenerateCoreQuery($Data) {
 	else if (!empty($Data["REGIONList"]))
 		$sqlquery = substr($sqlquery, 0, -1);
 		
-	$sqlquery .= $nl."FROM METEO_DATA_2015_WREGIONS";
+	$sqlquery .= $nl."FROM METEO_DATA_2017_WSNOW";
 	$Limits = array();
 	$k = 0;
 	if ($Data['DateType'] == "method1") {
@@ -550,18 +568,119 @@ function GenerateCoreQuery($Data) {
 	return $sqlquery;			
 }
 	
-	function ConnectDB() {
-		$servername = "localhost";
-		$username = "root";
-		$password = "trololo";
+	function ConnectDB($DB) {
+		$servername = "georegionorg.ipagemysql.com";
+		$username = "georegion";
+		$password = "Trololo12!";
 		$conn = new mysqli($servername, $username, $password);
 		if ($conn->connect_error) 
    		die("Connection failed: " . $conn->connect_error);
-		$DB = "DATA_STATION_2015";
 		if (!$conn->query('USE '.$DB)) 
   			echo ("Error using DB".$DB.": ". $conn->error);
                 if (!$conn->query('SET SQL_BIG_SELECTS =1;'))
                         echo ("Error enabling big selects");
   		return $conn;
 	}	
+
+	function GenerateModelQuery($Data) {
+		Global $Names;
+		 Global $Date;
+		
+		$nl = "\n";
+			
+		//Columns
+		$sqlquery = $nl."SELECT ";
+	
+		for ($i = 0; $i < count($Data['Columns']); $i++) {
+			if (!empty($Data['Functions']))
+				$sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].')';
+			else 
+				$sqlquery .= $Data['Columns'][$i];
+			if (!empty($Data["LR"]) || !empty($Data["REGIONList"])) 
+				$sqlquery .= ' AS "Y'.$i.'",';
+			else 
+				$sqlquery .= ",";
+			$sqlquery .= $nl."\t";
+		}
+		
+		$sqlquery = substr($sqlquery, 0, -3);	
+			
+		$sqlquery .= $nl."FROM MODEL_DATA";
+		$Limits = array();
+		$k = 0;
+		if ($Data['DateType'] == "method1") {
+			if ($Data["YEAR"][0] != "") {
+				$Limits[$k] = "YEAR(DAYS) >= ".$Data["YEAR"][0];
+					$k++;
+			}
+			if ($Data["YEAR"][1] != "") {
+				$Limits[$k] = "YEAR(DAYS) <= ".$Data["YEAR"][1];
+				$k++;
+			}
+			if ($Data["DAY"][0] != "" && $Data["DAY"][1] != "" 
+				&& day_of_year($Data['DAY'][0], $Data['MONTH'][0]) > day_of_year($Data['DAY'][1], $Data['MONTH'][1])) {
+				$Limits[$k]  = "(".$nl."\t\t(".$nl."\t\t\tMONTH(DAYS) > ".$Data['MONTH'][0];
+				$Limits[$k] .= $nl."\t\t\tOR (".$nl."\t\t\t\tMONTH(DAYS) = ".$Data['MONTH'][0];
+				$Limits[$k] .= $nl."\t\t\t\tAND DAY(DAYS) >= ".$Data['DAY'][0].$nl."\t\t\t)".$nl."\t\t)";
+				$Limits[$k] .= $nl."\t\tOR (";
+				$Limits[$k] .= $nl."\t\t\tMONTH(DAYS) < ".$Data['MONTH'][1];
+				$Limits[$k] .= $nl."\t\t\tOR (".$nl."\t\t\t\tMONTH(DAYS) = ".$Data['MONTH'][1];
+				$Limits[$k] .= $nl."\t\t\t\tAND DAY(DAYS) <= ".$Data['DAY'][1].$nl."\t\t\t)".$nl."\t\t)".$nl."\t)";
+				$k++;
+			}
+			else {
+				if ($Data["DAY"][0] != "") {
+					$Limits[$k] = "("
+						.$nl."\t\tMONTH(DAYS) > ".$Data["MONTH"][0]
+						.$nl."\t\tOR ("
+						.$nl."\t\t\tMONTH(DAYS) = ".$Data["MONTH"][0]
+						.$nl."\t\t\tAND DAY(DAYS) >= ".$Data["DAY"][0]
+						.$nl."\t\t)"
+						.$nl."\t)";
+						$k++;
+				}
+				if ($Data["DAY"][1] != "") {
+					$Limits[$k] = "("
+						.$nl."\t\tMONTH(DAYS) < ".$Data["MONTH"][1]
+						.$nl."\t\tOR ("
+						.$nl."\t\t\tMONTH(DAYS) = ".$Data["MONTH"][1]
+						.$nl."\t\t\tAND DAY(DAYS) <= ".$Data["DAY"][1]
+						.$nl."\t\t)"
+						.$nl."\t)";
+						$k++;
+				}
+			}
+		}
+		else { 
+			if ($Data["DAY"][0] != "") {
+				$Limits[$k] = "DAYS >= '".$Data["YEAR"][0]."-".$Data["MONTH"][0]."-".$Data["DAY"][0]."'";
+				$k++;
+			}
+			if ($Data["DAY"][1] != "") {
+				$Limits[$k] = "DAYS <= '".$Data["YEAR"][1]."-".$Data["MONTH"][1]."-".$Data["DAY"][1]."'";
+				$k++;
+			}
+		}
+		for ($i = 1; $i < count($Names); $i++) {
+			if ($Data[$Names[$i][0]][0] != "") {
+				$Limits[$k] = $Names[$i][0]." >= ".$Data[$Names[$i][0]][0];
+				$k++;
+			}
+			if ($Data[$Names[$i][0]][1] != "") {
+				$Limits[$k] = $Names[$i][0]." <= ".$Data[$Names[$i][0]][1];
+				$k++;
+			}
+		}
+		
+		
+		//LIMITS
+		if (count($Limits) > 0) {
+			$sqlquery .= $nl."WHERE ".$Limits[0];
+			for ($i = 1; $i < count($Limits); $i++)
+				$sqlquery .= $nl."\tAND ".$Limits[$i];
+		}
+				
+			
+		return $sqlquery;			
+	}
 ?>

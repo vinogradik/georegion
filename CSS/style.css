@@ -90,6 +90,10 @@ a#lang{
 	color: grey;
 }
 
+a#back{
+	color: grey;
+}
+
 p {
 	margin-top: 4px;
 	margin-bottom: 0;

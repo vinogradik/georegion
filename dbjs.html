@@ -1,255 +1,265 @@
-	<html lang = ru>
+<html lang = ru>
 <head>
-	<link rel="stylesheet" type="text/css" href="CSS/style.css">
-  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-   <title></title>
-   <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-	<script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
-   <script src="JS/genQuery.js"></script>
-   <script src="JS/string_consts.js"></script>
-   <link href="CSS/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
-	<script type="text/javascript" src="CSS/google-code-prettify/prettify.js"></script>
-     <script>
-   	$(document).ready(function() {
-   		var primaryTable = "METEO_DATA_2015_WREGIONS";
-   		$('select#chooseTable').on('change', function() {
-   			$(".error").hide();
-   			$("div.forTable").hide();
-   			$(".result").hide();
-   			primaryTable = this.value;
-   			$("div#" + primaryTable).show();
-			})
-   		
-   		$("input").change(function () {
-   			$(".result")[0].style.opacity = 0.5;
-   		})
-   		
-			$("input.functions").change(function(e) {
-				switch ($("input." + primaryTable +".functions:checked").length) {
-				case 1:
-					if (primaryTable == "METEO_DATA_2015_WREGIONS")					
-						$(".withAd").fadeIn();
-					break;
-				case 0:
-					if (primaryTable == "METEO_DATA_2015_WREGIONS") {					 
-						$(".withAd").fadeOut();
-						resetHiddenPart();
-					}
-					break;
-				default: 
-					$("input." + primaryTable + ".functions:checked").each(function () {
-						$(this).prop("checked", false);
-					});
-					$("#" + e.target.id + "." + primaryTable).prop("checked", true);
-				}				
-			});
-			
-			
-			$(document).on('change', 'input.REGIONList', function(){
-				
-				var j = 0;
-				
-				while (this.value != groups[0].TbCoParams[j])
-					j++;
-				if (j > 0) 
-					if (this.checked) 
-						$("#" + groups[0].TbCoParams[j]).fadeIn();
-					else  
-						$("#" + groups[0].TbCoParams[j]).fadeOut();
-				translateForm(); 	
-    		});
-    		$(document).on('change', 'input.INDList', function(){
-				translateForm(); 	
-    		});			
-			
-			$("input.Group").change(function(e){
-				if ($("input#LR:checked").length == 1)  
-					$("input.notLR:checked").each(function(){
-						$(this).prop("checked", false);	
-					});
-				var i = 0;
-				while (this.id != "Group" + groups[i].TbName)
-					i++;
-				if (this.checked == true) 
-					customDialog(i);
-         	else {
-         		document.getElementById("Group" + groups[i].TbName + "List").innerHTML = "";
-         		FormSerialised[i] = "";
-         		AdFormData[i] = {};
-         		if ($("#your-dialog").hasClass('ui-dialog-content')) 
-         			$("#your-dialog").dialog("close");
-         	}
-			});
-			
-			$(document).on("submit", "form.AdForm", function(e){
-				e.preventDefault();
-				var i = 0;
-				while (this.id != groups[i].TbName)
-					i++;
-				AdFormData[i] = getFormDataArray(this);
-				var errorType = ValidateAdFormJS(i);
-        		if (errorType == -1){
-        			$("#your-dialog").dialog("close"); 	
-     				translateForm()
-         		FormSerialised[i] = $(this).serialize();
-         	}
-         	else {
-         		if (lang == 'russian')
-         			alert('Ошибка: проверьте фильтр "годы" параметра "' + groups[i].RuCoParams[errorType] + '"');
-         		else 
-         			alert('Error: check filter "years" of "' + groups[i].EnCoParams[errorType] + '" parameter');
-         	}
-      	});
-      	
-      	$(document).on("click", "a.AdFormChange", function(){
-      		i = 0; 
-      		while (this.id != groups[i].TbName + "ListChange")
-      			i++;
-      		customDialog(i);
-      	});
-			
-			$("input#LR").change(function(){
-				var x = $("p.notLR");
-				if (this.checked) {
-					$("input.notLR:checked").each(function(){
-						$(this).prop("checked", false);	
-					});
-					for (i = 0; i < x.length; i++)
-						x[i].style.opacity = 0.5;
-				}
-				else {
-					for (i = 0; i < x.length; i++) 
-						x[i].style.opacity = 1;
-				}					
-			});
-			
-			
-			
-			$("input[name = extractType]").change(function(){
-				if ($("input[name = extractType]:checked").val() == 1) {
-					$("#filename").show();
-					$("#TableSize").hide();
-				}
-				else {
-					$("#TableSize").show();
-					$("#filename").hide();
-				}
-			});
-			
-			
-			$("form#Main").submit(function(e) {
-				e.preventDefault();
-				var errorType = ValidateFormJS(primaryTable);
-		
-				if (errorType == -1) {
-					$(".error").hide();
-					$(".modal").show();
-					$(".result")[0].style.opacity = 1;
-					$(".result").fadeIn();
-					
-					var sentData = $('form#Main').serialize();
-					for (i = 0; i < groups.length; i++)
-						if (FormSerialised[i].length > 0) 
-							sentData += "&" + FormSerialised[i];
-						sentData += "&lang=" + lang
-          		$.post('PHP/server.php', sentData, function(retData) {
-          			if ($("input[name = extractType]:checked").val() == 1)
-  							$("body").append("<iframe src='PHP/DownloadCSV.php' style='display: none;' ></iframe>");
-  						$(".modal").hide();
-  						$(".result").html(retData);
-  						prettyPrint();
-  						$("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, "slow");
-					}); 
-          	}
-    			else { 
-    				$(".error").show();
-    				$(".result").hide();
-    				if (errorType == -2){
-    					var error = "Ошибка: ничего не выбрано"
-    					if (lang == 'english')
-    						error = 'Error: nothing chosen'
-    					document.getElementsByClassName("error")[0].innerHTML = error;
-    				}
-    				else	{
-    					var it = 0;
-						while(primaryTable != tables[it].Name)
-							it++;
-						var error = 'Ошибка: проверьте фильтр "' + tables[it].Cols[errorType].RuName + '"'
-    					if (lang == 'english')
-    						error = 'Error: check filter "' + tables[it].Cols[errorType].EnName + '"'
-    					document.getElementsByClassName("error")[0].innerHTML = error;    					
- 
-					}    				
-    				$("html, body").animate({ scrollTop: 0 }, "slow");
-    			}
-    			$("form#Main").data({preverror: (errorType + 1), windowPosition: $("body").scrollTop()});
-    			
-			});
-			$(document).on("click", "a#lang", function(){
-				$(".result")[0].style.opacity = 0.5;
-				$(".error").hide();
-				
-				if (lang == "russian") {
-					$("#english").hide();
-					$('#russian').show();
-					lang = "english";		
-				}
-				else {
-					$("#english").show();
-					$('#russian').hide();
-					lang = "russian";				
-				}
-				translateForm();
-			});
-		});
-   </script>	   
+    <link rel="stylesheet" type="text/css" href="CSS/style.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+    <script src="JS/genQuery.js"></script>
+    <script src="JS/string_consts.js"></script>
+    <link href="CSS/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="CSS/google-code-prettify/prettify.js"></script>
+    <script>
+        $(document).ready(function() {
+            localStorage.setItem("reload", "");
+            if(localStorage.getItem("lang") != null) {
+                lang = localStorage.getItem("lang");
+                if (lang == "english"){
+                    $("#english").show();
+                    $('#russian').hide();
+                }
+                translateForm();
+            }
+            var primaryTable = "MODEL_DATA";
+            if (localStorage.getItem("db") == "stations_regions")
+            primaryTable = "METEO_DATA_2015_WREGIONS";
+            $('select#chooseTable').on('change', function() {
+                $(".error").hide();
+                $("div.forTable").hide();
+                $(".result").hide();
+                primaryTable = this.value;
+                $("div#" + primaryTable).show();
+            })
+            $("input").change(function () {
+                 $(".result")[0].style.opacity = 0.5;
+            })
+            $("input.functions").change(function(e) {
+                switch ($("input." + primaryTable +".functions:checked").length) {
+                case 1:
+                    if (primaryTable == "METEO_DATA_2015_WREGIONS")
+                        $(".withAd").fadeIn();
+                    break;
+                case 0:
+                    if (primaryTable == "METEO_DATA_2015_WREGIONS") {
+                        $(".withAd").fadeOut();
+                        resetHiddenPart();
+                    }
+                    break;
+                default:
+                    $("input." + primaryTable + ".functions:checked").each(function () {
+                        $(this).prop("checked", false);
+                    });
+                    $("#" + e.target.id + "." + primaryTable).prop("checked", true);
+                }
+            });
+            $(document).on('change', 'input.REGIONList', function(){
+                var j = 0;
+                while (this.value != groups[0].TbCoParams[j])
+                    j++;
+                if (j > 0)
+                    if (this.checked)
+                        $("#" + groups[0].TbCoParams[j]).fadeIn();
+                    else
+                        $("#" + groups[0].TbCoParams[j]).fadeOut();
+                translateForm();
+            });
+            $(document).on('change', 'input.INDList', function(){
+                translateForm();
+            });
+            $("input.Group").change(function(e){
+                if ($("input#LR:checked").length == 1)
+                    $("input.notLR:checked").each(function(){
+                        $(this).prop("checked", false);
+                    });
+                var i = 0;
+                while (this.id != "Group" + groups[i].TbName)
+                    i++;
+                if (this.checked == true)
+                    customDialog(i);
+                else {
+                    document.getElementById("Group" + groups[i].TbName + "List").innerHTML = "";
+                    FormSerialised[i] = "";
+                    AdFormData[i] = {};
+                    if ($("#your-dialog").hasClass('ui-dialog-content'))
+                        $("#your-dialog").dialog("close");
+                }
+            });
+            $(document).on("submit", "form.AdForm", function(e){
+                e.preventDefault();
+                var i = 0;
+                while (this.id != groups[i].TbName)
+                    i++;
+                AdFormData[i] = getFormDataArray(this);
+                var errorType = ValidateAdFormJS(i);
+                if (errorType == -1){
+                    $("#your-dialog").dialog("close");
+                    translateForm()
+                    FormSerialised[i] = $(this).serialize();
+                }
+                else {
+                    if (lang == 'russian')
+                        alert('Ошибка: проверьте фильтр "годы" параметра "' + groups[i].RuCoParams[errorType] + '"');
+                    else
+                        alert('Error: check filter "years" of "' + groups[i].EnCoParams[errorType] + '" parameter');
+                }
+            });
+            $(document).on("click", "a.AdFormChange", function(){
+                i = 0;
+                while (this.id != groups[i].TbName + "ListChange")
+                    i++;
+                customDialog(i);
+            });
+            $("input#LR").change(function(){
+                var x = $("p.notLR");
+                if (this.checked) {
+                    $("input.notLR:checked").each(function(){
+                        $(this).prop("checked", false);
+                    });
+                    for (i = 0; i < x.length; i++)
+                        x[i].style.opacity = 0.5;
+                }
+                else {
+                    for (i = 0; i < x.length; i++)
+                        x[i].style.opacity = 1;
+                }
+            });
+            $("input[name = extractType]").change(function(){
+                if ($("input[name = extractType]:checked").val() == 1) {
+                    $("#filename").show();
+                    $("#TableSize").hide();
+                }
+                else {
+                    $("#TableSize").show();
+                    $("#filename").hide();
+                }
+            });
+            $("form#Main").submit(function(e) {
+                e.preventDefault();
+                var errorType = ValidateFormJS(primaryTable);
+                if (errorType == -1) {
+                    $(".error").hide();
+                    $(".modal").show();
+                    $(".result")[0].style.opacity = 1;
+                    $(".result").fadeIn();
+                    var sentData = $('form#Main').serialize();
+                    for (i = 0; i < groups.length; i++)
+                        if (FormSerialised[i].length > 0)
+                            sentData += "&" + FormSerialised[i];
+                    sentData += "&lang=" + lang;
+                    sentData += "&db=" + localStorage.getItem("db");
+                    if (localStorage.getItem("db") != "stations_regions") {
+                        var str =     "primaryTabl=MODEL_DATA&" + sentData;
+                        sentData = str;
+                    }
+                  $.post('PHP/server.php', sentData, function(retData) {
+                      if ($("input[name = extractType]:checked").val() == 1)
+                            $("body").append("<iframe src='PHP/DownloadCSV.php' style='display: none;' ></iframe>");
+                        $(".modal").hide();
+                        $(".result").html(retData);
+                        prettyPrint();
+                        $("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, "slow");
+                    });
+              }
+                else {
+                    $(".error").show();
+                    $(".result").hide();
+                    if (errorType == -2){
+                        var error = "Ошибка: ничего не выбрано"
+                        if (lang == 'english')
+                            error = 'Error: nothing chosen'
+                        document.getElementsByClassName("error")[0].innerHTML = error;
+                    }
+                    else    {
+                        var tables = databases[1].slice();
+                        if (localStorage.getItem("db") == "stations_regions")
+                            tables = databases[0].slice();
+                        var it = 0;
+                        while(primaryTable != tables[it].Name)
+                            it++;
+                        var error = 'Ошибка: проверьте фильтр "' + tables[it].Cols[errorType].RuName + '"'
+                        if (lang == 'english')
+                            error = 'Error: check filter "' + tables[it].Cols[errorType].EnName + '"'
+                        document.getElementsByClassName("error")[0].innerHTML = error;
+                    }
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                }
+                $("form#Main").data({preverror: (errorType + 1), windowPosition: $("body").scrollTop()});
+            });
+            $(document).on("click", "a#lang", function(){
+                $(".result")[0].style.opacity = 0.5;
+                $(".error").hide();
+                if (lang == "russian") {
+                    $("#english").hide();
+                    $('#russian').show();
+                    lang = "english";
+                    localStorage.setItem("lang","english");
+                }
+                else {
+                    $("#english").show();
+                    $('#russian').hide();
+                    lang = "russian";
+                    localStorage.setItem("lang","russian");
+                }
+                translateForm();
+            });
+        });
+    </script>
 </head>
 <body>
+<table>
+<tr>
+<td>
+    <a id = "back" href = "http://georegion.org/"></a>
+</td>
+<td>
 <div id = "language">
 <a id = "lang">
-	<label for = 'russian english'>translate this site into</label>
-	<img id = "russian" src="IMG/russia.png" width = 20 height = 20 hidden>
-	<img id = "english" src="IMG/united-kingdom.png" width = 20 height = 20>
+    <label for = 'russian english'>translate this site into</label>
+    <img id = "russian" src="IMG/russia.png" width = 20 height = 20 hidden>
+    <img id = "english" src="IMG/united-kingdom.png" width = 20 height = 20 hidden>
 </a>
 </div>
+</td>
+</tr>
+</table>
 <p class = "error" hidden></p>
+<h1 id = dbname></h1>
 <form id = "Main">
-	<fieldset    class  = "main"       id = "tables"></fieldset>	
-	
-	<div         class = "forTable"    id = "METEO_DATA_2015_WREGIONS">
-		<fieldset class  = "main"       id = 'filters'></fieldset>
-		<fieldset class  = "main"       id = "functions"></fieldset>
-		<fieldset class = "main withAd"                                                                         hidden>
-			<legend                      id = "Regression"></legend>
-			<input type = "checkbox"     id = "LR"        name = "LR"          value = "LR" autocomplete = "off">
-			<label for "LR"              id = "LR"></label><br>
-		</fieldset>
-		<fieldset class = "main withAd" id = "groups"                                                           hidden></fieldset>
-	</div>
-	<div                               id = "otherTables"></div>
-	<fieldset class  = "main">
-		<legend                         id = "Output"></legend>
-		<p>
-			<input type = "radio"        id = "preview"   name = "extractType" value = "0"  autocomplete = "off" checked>
-			<label for = "preview"       id = "preview"></label>
-		</p>
-		<p>
-			<input type = "radio"        id = "output"    name = "extractType" value = "1"  autocomplete = "off">
-			<label for = "output"        id = "output"></label>
-		</p>
-		<p                              id = "TableSize">
-			<input type = "number"       id = "numLines"  name = "TableSize"   value = "10" min = 0> 
-			<label for = "numLines"      id = "numLines"></label>
-		</p>
-		<p                              id = "filename"                                                         hidden>
-			<input type = "text"                          name = "filename" placeholder = "data.csv">
-    		<label for = "filename"      id = "filename"></label>
-    	</p>
-	</fieldset>
-	<input       type="submit"         id = "SubmitAll" name = "SubmitAll">
+    <fieldset    class  = "main"       id = "tables"></fieldset>
+    <div         class = "forTable"    id = "METEO_DATA_2015_WREGIONS">
+        <fieldset class  = "main"       id = 'filters'></fieldset>
+        <fieldset class  = "main"       id = "functions"></fieldset>
+        <fieldset class = "main withAd"                                                                         hidden>
+            <legend                      id = "Regression"></legend>
+            <input type = "checkbox"     id = "LR"        name = "LR"          value = "LR" autocomplete = "off">
+            <label for "LR"              id = "LR"></label><br>
+        </fieldset>
+        <fieldset class = "main withAd" id = "groups"                                                           hidden></fieldset>
+    </div>
+    <div                               id = "otherTables"></div>
+    <fieldset class  = "main">
+        <legend                         id = "Output"></legend>
+        <p>
+            <input type = "radio"        id = "preview"   name = "extractType" value = "0"  autocomplete = "off" checked>
+            <label for = "preview"       id = "preview"></label>
+        </p>
+        <p>
+            <input type = "radio"        id = "output"    name = "extractType" value = "1"  autocomplete = "off">
+            <label for = "output"        id = "output"></label>
+        </p>
+        <p                              id = "TableSize">
+            <input type = "number"       id = "numLines"  name = "TableSize"   value = "10" min = 0>
+            <label for = "numLines"      id = "numLines"></label>
+        </p>
+        <p                              id = "filename"                                                         hidden>
+            <input type = "text"                          name = "filename" placeholder = "data.csv">
+            <label for = "filename"      id = "filename"></label>
+        </p>
+    </fieldset>
+    <input       type="submit"         id = "SubmitAll" name = "SubmitAll">
 </form>
 <script>
-	fillForm();
+    fillForm();
 </script>
 <p class = "result" hidden></p>
 <div class='modal' hidden></div>
