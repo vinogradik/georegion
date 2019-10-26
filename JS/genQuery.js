@@ -371,10 +371,14 @@ function translateForm(){
 		document.title = "Database"
 		$("label#LR").text("count angular coefficient of the trend line");
 		$("label#preview").text("preview");
+		$("label#map").text("create map");
 		$("label#output").text("output into file");
 		$("label#numLines").text("number of lines in the page");
-		$("label#fileName").text("filename");		
-		
+		$("label#existing_data").text("use existing data");
+		$("label#fileName").text("filename");
+		$("label#map_right").text("longtitude");
+		$("label#map_up"   ).text("latitude");
+
 		$("input#submitAll").val("Submit");
       if ($("#your-dialog").text() != ""){
 			$("#your-dialog").dialog({
@@ -388,9 +392,13 @@ function translateForm(){
 		$("label#LR").text("посчитать коэффициент наклона линии тренда");
 		$("label#preview").text("предпросмотр");
 		$("label#output").text("вывод в файл");
+		$("label#map").text("создать карту");
 		$("label#numLines").text("количество строк на странице");
 		$("label#filename").text("имя файла");
-		
+		$("label#existing_data").text("использовать сохраненные данные");
+		$("label#map_right" ).text("долгота" );
+		$("label#map_up"    ).text("широта"   );
+
 		$("input#submitAll").val("Применить");
 		if ($("#your-dialog").text() != ""){
 			$("#your-dialog").dialog({
@@ -557,4 +565,11 @@ function fillForm(){
 
 
 
+}
+
+function updateTextInput(val) {
+    $("label#grid_density").text("Grid density: " + val + " degrees.");
+}
+function updateRangeInput(val) {
+    document.getElementById('grid_density').value=val; 
 }

@@ -11,6 +11,9 @@
     <script type="text/javascript" src="CSS/google-code-prettify/prettify.js"></script>
     <script>
         $(document).ready(function() {
+            if (localStorage.getItem('user_id') == null) {
+                 window.location.href = './chooseDB.html';
+            }
             localStorage.setItem("reload", "");
             if(localStorage.getItem("lang") != null) {
                 lang = localStorage.getItem("lang");
@@ -22,17 +25,31 @@
             }
             var primaryTable = "MODEL_DATA";
             if (localStorage.getItem("db") == "stations_regions")
-            primaryTable = "METEO_DATA_2015_WREGIONS";
+                primaryTable = "METEO_DATA_2015_WREGIONS";
             $('select#chooseTable').on('change', function() {
                 $(".error").hide();
                 $("div.forTable").hide();
                 $(".result").hide();
                 primaryTable = this.value;
                 $("div#" + primaryTable).show();
+                if (primaryTable == "METEO_DATA_2015_WREGIONS")
+                    $("div#maps").show();
+                else {
+                    if (document.getElementById("map").checked == true) {
+                        document.getElementById("preview").checked = true;
+                        $("#TableSize").show();
+                        $("#map_params").hide();
+                    }
+                    $("div#maps").hide();
+                }
             })
-            $("input").change(function () {
+            $(".forTable").change(function () {
                  $(".result")[0].style.opacity = 0.5;
             })
+            $(".forTable#METEO_DATA_2015_WREGIONS").change(function () {
+                 existing_data = 0;
+            })
+
             $("input.functions").change(function(e) {
                 switch ($("input." + primaryTable +".functions:checked").length) {
                 case 1:
@@ -124,13 +141,20 @@
                 }
             });
             $("input[name = extractType]").change(function(){
-                if ($("input[name = extractType]:checked").val() == 1) {
-                    $("#filename").show();
+                if ($("input[name = extractType]:checked").val() == 0) {
+                    $("#filename").hide();
+                    $("#TableSize").fadeIn  ();
+                    $("#map_params").hide();
+                }
+                else if ($("input[name = extractType]:checked").val() == 1){
+                    $("#filename").fadeIn();
                     $("#TableSize").hide();
+                    $("#map_params").hide();
                 }
                 else {
-                    $("#TableSize").show();
                     $("#filename").hide();
+                    $("#TableSize").hide();
+                    $("#map_params").fadeIn();
                 }
             });
             $("form#Main").submit(function(e) {
@@ -147,19 +171,23 @@
                             sentData += "&" + FormSerialised[i];
                     sentData += "&lang=" + lang;
                     sentData += "&db=" + localStorage.getItem("db");
+                    sentData += "&uid=" + localStorage.getItem("user_id")
+                    sentData += "&existing_data=" + existing_data;
                     if (localStorage.getItem("db") != "stations_regions") {
                         var str =     "primaryTabl=MODEL_DATA&" + sentData;
                         sentData = str;
                     }
-                  $.post('PHP/server.php', sentData, function(retData) {
-                      if ($("input[name = extractType]:checked").val() == 1)
-                            $("body").append("<iframe src='PHP/DownloadCSV.php' style='display: none;' ></iframe>");
+                    $.post('PHP/server.php', sentData, function(retData) {
+                        if ($("input[name = extractType]:checked").val() == 1)
+                            $("body").append("<iframe src='PHP/DownloadCSV_" + localStorage['user_id'] + ".php' style='display: none;' ></iframe>");
                         $(".modal").hide();
                         $(".result").html(retData);
                         prettyPrint();
                         $("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, "slow");
                     });
-              }
+                    if ($("input[name = extractType]:checked").val() == 2)
+                        existing_data = 1;
+                }
                 else {
                     $(".error").show();
                     $(".result").hide();
@@ -202,6 +230,12 @@
                 }
                 translateForm();
             });
+            $("input#use_line_density").on('change', function() {
+                if(this.checked)
+                    $("div#line_density").show();
+                else
+                    $("div#line_density").hide();
+            });
         });
     </script>
 </head>
@@ -243,18 +277,75 @@
             <input type = "radio"        id = "preview"   name = "extractType" value = "0"  autocomplete = "off" checked>
             <label for = "preview"       id = "preview"></label>
         </p>
+        <p  class = 'output_params'      id = "TableSize">
+            <input type = "number"       id = "numLines"  name = "TableSize"   value = "10" min = 0>
+            <label for = "numLines"      id = "numLines"></label>
+        </p>
         <p>
             <input type = "radio"        id = "output"    name = "extractType" value = "1"  autocomplete = "off">
             <label for = "output"        id = "output"></label>
         </p>
-        <p                              id = "TableSize">
-            <input type = "number"       id = "numLines"  name = "TableSize"   value = "10" min = 0>
-            <label for = "numLines"      id = "numLines"></label>
-        </p>
-        <p                              id = "filename"                                                         hidden>
+        <p  class = 'output_params'      id = "filename"                                                         hidden>
             <input type = "text"                          name = "filename" placeholder = "data.csv">
             <label for = "filename"      id = "filename"></label>
         </p>
+        <div  id = "maps">
+            <input type = "radio"        id = "map"      name = "extractType"  value = "2"  autocomplete = "off">
+            <label for = "map"           id = "map"></label>
+            <div   class = 'output_params'        id = "map_params"                                                       hidden>
+                <!--<input type = "checkbox"  name = "existing_data">
+                <label for = "existing_data"      id = "existing_data"></label>
+                <br>-->
+                <div id = "gxout">
+                    <input type = 'checkbox' name = 'MapType[]' id = 'shaded' value = 'shaded'>
+                    <label for = "shaded"      id = "shaded">shaded</label>
+                    <br>
+                    <input type = 'checkbox' name = 'MapType[]' id = 'contour' value = 'contour' checked>
+                    <label for = "contour"      id = "contour">contour</label>
+                    <br>
+                    <input type = 'checkbox' name = 'MapType[]' id = 'values' value = 'value'>
+                    <label for = "value"      id = "value">values</label>
+                </div>
+                <!--<select   class = 'short' name = "gxout" autocomplete = 'off'>
+                    <option value = "contour">contour</option>
+                    <option value = "shaded">shaded</option>
+                    <option value = "values">values</option>
+                </select>
+                <br>-->
+
+                0.5<input type = "range"    min = "0.5"  max = "4"  step = "0.1" name = "grid_density" value = "1" oninput="updateTextInput(this.value);">4<br>
+                <label for = "grid_density"      id = "grid_density">Grid density: 1 degree.</label>
+                <br>
+                <!--
+                <input type = "text"                          name = "filename" placeholder = "map.png">
+                <label for = "filename"      id = "map_params"></label>
+                <br>-->
+                <input type = 'checkbox' name = 'CUSTOM_LINE_DENSITY' id = 'use_line_density'>
+                <label for = "use_line_density"  id = "use_line_density"> use custom line density</label>
+                <br>
+                <div id = 'line_density' hidden>
+                    <input type='number'         id = 'line_density'    name = 'LINE_DENSITY'  step = '0.001'  min = '0'   max = '1000 ' value = '1'>
+                    <label for = "line_density"  id = "line_density">custom line density</label>
+                    <br>
+                </div>
+
+                <input type='number'         id = 'framerate'      name = 'FRAMERATE'      min = '1'   max = '100' value = '2' placeholder = 'framerate' >
+                <label for = "framerate"     id = "framerate">framerate</label>
+                <br>
+
+
+                <label for = "map_down"      id = "map_down"></label>
+                <input type='number'         id = 'map_down'    name = 'MAP_DOWN'    min = '-90'   max = '90' value = '30' placeholder = 'down border'  >
+                <input type='number'         id = 'map_up'      name = 'MAP_UP'      min = '-90'   max = '90' value = '70' placeholder = 'upper border' >
+                <label for = "map_up"        id = "map_up"></label>
+                <br>
+                <label for = "map_left"      id = "map_left"></label>
+                <input type='number'         id = 'map_left'    name = 'MAP_LEFT'    min = '0'   max = '360' value = '30' placeholder = 'left border'   >
+                <input type='number'         id = 'map_right'   name = 'MAP_RIGHT'   min = '0'   max = '360' value = '70' placeholder = 'right border'  >
+                <label for = "map_right"     id = "map_right"></label>
+                <br>
+            </div>
+        </div>
     </fieldset>
     <input       type="submit"         id = "SubmitAll" name = "SubmitAll">
 </form>

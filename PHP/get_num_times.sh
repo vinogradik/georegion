@@ -1,0 +1,1 @@
+grep -o "TDEF\s*[0-9]\+" ../MAPS/$1/data.ctl | grep -o "[0-9]\+"

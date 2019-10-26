@@ -1,0 +1,11 @@
+PREPARING station data for grads:
+I   convert data file to grads format using convert executable;
+II  create ctl description file for this data
+III use stnmap (used for grads more effective work).
+
+Files in ./MAPS directory
+.csv initial station data file
+.dat data file after ./convert
+.map stnmap help file after ./stnmap
+.ctl description file (should point to the station data file)
+.gs grads script
