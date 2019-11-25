@@ -59,10 +59,13 @@
 		$conn->close();
 	}
 	else if ($_POST['extractType'] == 1) {
-        $csv_downloader_filename = "DownloadCSV_".$_POST['uid'].".php";
-		$myfile = fopen($csv_downloader_filename, "w");
+        $dir_address = "../MAPS/".$_POST["uid"];
+        if (!is_dir($dir_name)) {
+            mkdir($dir_address, 0755);
+        }
+        $myfile = fopen($dir_address."/DownloadCSV.php", "w");
 		fwrite($myfile, '<?php
-			include "Function.php";
+			include "../../PHP/Function.php";
 			header("Content-Type: text/csv; charset=utf-8");
 			header("Content-Disposition: attachment; filename = ');
 		if (!empty($_POST['filename']))
@@ -166,10 +169,13 @@
             case 3:
                 $time_start = 16;
                 break;
+            default:
+                $time_start = -1;
         }
         $time_length = $time_end - $time_start;
         $maps .= "\n    'q time'";
-        $maps .= "\n    'draw title 'substr(result, ".$time_start.", ".$time_length.")";
+        if ($time_start > 0)
+            $maps .= "\n    'draw title 'substr(result, ".$time_start.", ".$time_length.")";
         $maps .= "\n    'printim ./gif/out'count'.png white'".
             "\n    count = count + 1".
             "\nendwhile";

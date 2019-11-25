@@ -576,8 +576,10 @@ function GenerateCoreQuery($Data) {
     
 function ConnectDB($DB) {
     $servername = "localhost";
-    $username = "root";
-    $password = "Trololo1!";
+    $json_string = file_get_contents("/var/www/193-124-206-5.cloudvps.regruhosting.ru/mysql.json");
+    $credentials = json_decode($json_string, true);
+    $username = $credentials["username"];
+    $password = $credentials["password"];
     $conn = new mysqli($servername, $username, $password);
     if ($conn->connect_error) 
     die("Connection failed: " . $conn->connect_error);

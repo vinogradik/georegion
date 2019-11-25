@@ -1,6 +1,7 @@
 cd ../MAPS/$2
 if [ ! -d 'gif' ]; then
     mkdir gif
+    chmod 777 gif
 fi
 grads -pcbx 'run script.gs'
 cd gif

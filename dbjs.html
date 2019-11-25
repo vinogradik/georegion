@@ -179,7 +179,7 @@
                     }
                     $.post('PHP/server.php', sentData, function(retData) {
                         if ($("input[name = extractType]:checked").val() == 1)
-                            $("body").append("<iframe src='PHP/DownloadCSV_" + localStorage['user_id'] + ".php' style='display: none;' ></iframe>");
+                            $("body").append("<iframe src='MAPS/" + localStorage['user_id'] + "/DownloadCSV.php' style='display: none;' ></iframe>");
                         $(".modal").hide();
                         $(".result").html(retData);
                         prettyPrint();
