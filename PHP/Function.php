@@ -583,6 +583,12 @@ function ConnectDB($DB) {
     $conn = new mysqli($servername, $username, $password);
     if ($conn->connect_error) 
     die("Connection failed: " . $conn->connect_error);
+
+    if (!$conn->set_charset("utf8")) {
+        echo("Error uploading utf8 charset".$conn->error);
+        exit();
+    }
+
     if (!$conn->query('USE '.$DB)) 
         echo ("Error using DB".$DB.": ". $conn->error);
             if (!$conn->query('SET SQL_BIG_SELECTS =1;'))
