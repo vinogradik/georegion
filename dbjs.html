@@ -296,13 +296,13 @@
                 <br>-->
                 <div id = "gxout">
                     <input type = 'checkbox' name = 'MapType[]' id = 'shaded' value = 'shaded'>
-                    <label for = "shaded"      id = "shaded">shaded</label>
+                    <label for = "shaded"      id = "shaded"></label>
                     <br>
                     <input type = 'checkbox' name = 'MapType[]' id = 'contour' value = 'contour' checked>
                     <label for = "contour"      id = "contour">contour</label>
                     <br>
                     <input type = 'checkbox' name = 'MapType[]' id = 'values' value = 'value'>
-                    <label for = "value"      id = "value">values</label>
+                    <label for = "value"      id = "value"></label>
                 </div>
                 <!--<select   class = 'short' name = "gxout" autocomplete = 'off'>
                     <option value = "contour">contour</option>
@@ -311,15 +311,15 @@
                 </select>
                 <br>-->
 
-                0.5<input type = "range"    min = "0.5"  max = "4"  step = "0.1" name = "grid_density" value = "1" oninput="updateTextInput(this.value);">4<br>
-                <label for = "grid_density"      id = "grid_density">Grid density: 1 degree.</label>
+                0.5<input type = "range"    min = "0.5"  max = "4"  step = "0.1" name = "grid_density" id="grid_density_range" value = "1" oninput="updateTextInput(this.value);">4<br>
+                <label for = "grid_density"      id = "grid_density"></label>
                 <br>
                 <!--
                 <input type = "text"                          name = "filename" placeholder = "map.png">
                 <label for = "filename"      id = "map_params"></label>
                 <br>-->
                 <input type = 'checkbox' name = 'CUSTOM_LINE_DENSITY' id = 'use_line_density'>
-                <label for = "use_line_density"  id = "use_line_density"> use custom line density</label>
+                <label for = "use_line_density"  id = "use_line_density"></label>
                 <br>
                 <div id = 'line_density' hidden>
                     <input type='number'         id = 'line_density'    name = 'LINE_DENSITY'  step = '0.001'  min = '0'   max = '1000 ' value = '1'>
@@ -328,7 +328,7 @@
                 </div>
 
                 <input type='number'         id = 'framerate'      name = 'FRAMERATE'      min = '1'   max = '100' value = '2' placeholder = 'framerate' >
-                <label for = "framerate"     id = "framerate">framerate</label>
+                <label for = "framerate"     id = "framerate"></label>
                 <br>
 
 

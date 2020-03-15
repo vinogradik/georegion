@@ -376,6 +376,12 @@ function translateForm(){
 		$("label#numLines").text("number of lines in the page");
 		$("label#existing_data").text("use existing data");
 		$("label#fileName").text("filename");
+		$("label#shaded").text("shaded");
+		$("label#contour").text("contour");
+		$("label#value").text("values");
+		$("label#use_line_density").text("use custom line density");
+		$("label#line_density").text("line density");
+		$("label#framerate").text("frame rate");
 		$("label#map_right").text("longtitude");
 		$("label#map_up"   ).text("latitude");
 
@@ -395,7 +401,13 @@ function translateForm(){
 		$("label#map").text("создать карту");
 		$("label#numLines").text("количество строк на странице");
 		$("label#filename").text("имя файла");
+		$("label#shaded").text("заливка");
+		$("label#contour").text("контур");
+		$("label#value").text("значения");
 		$("label#existing_data").text("использовать сохраненные данные");
+		$("label#use_line_density").text("указать шаг изолиний");
+		$("label#line_density").text("шаг изолиний");
+		$("label#framerate").text("количество кадров в секунду");
 		$("label#map_right" ).text("долгота" );
 		$("label#map_up"    ).text("широта"   );
 
@@ -406,7 +418,13 @@ function translateForm(){
       	});
       	$('input.SubmitRegions').val('Ок')
       }
-	}	
+	}
+
+    val = document.getElementById("grid_density_range").value;
+    if (!val) {
+        val = 1;
+    }
+    updateTextInput(val);
 }
 
 function fillForm(){
@@ -568,8 +586,20 @@ function fillForm(){
 }
 
 function updateTextInput(val) {
-    $("label#grid_density").text("Grid density: " + val + " degrees.");
-}
-function updateRangeInput(val) {
-    document.getElementById('grid_density').value=val; 
+	if (lang == "english"){
+        if (val == 1) {
+            $("label#grid_density").text("Grid density: " + val + " degree");
+        }
+        else {
+            $("label#grid_density").text("Grid density: " + val + " degrees");
+        }
+    }
+    else {
+        if (val == 1) {
+            $("label#grid_density").text("Частота сетки: " + val + " градус");
+        }
+        else {
+            $("label#grid_density").text("Частота сетки: " + val + " градуса");
+        }
+    }
 }
