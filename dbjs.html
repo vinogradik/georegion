@@ -7,6 +7,7 @@
     <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
     <script src="JS/genQuery.js"></script>
     <script src="JS/string_consts.js"></script>
+    <script src="JS/add_download_button.js"></script>
     <link href="CSS/google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="CSS/google-code-prettify/prettify.js"></script>
     <script>
@@ -181,6 +182,8 @@
                         $(".modal").hide();
                         $(".result").html(retData);
                         prettyPrint();
+                        if ($("input[name = extractType]:checked").val() == 2)
+                            addDownloadBtn();
                         $("html, body").animate({ scrollTop: $(document).height() - $(window).scrollTop() }, "slow");
                     });
                     if ($("input[name = extractType]:checked").val() == 2)
@@ -233,6 +236,10 @@
                     $("div#line_density").show();
                 else
                     $("div#line_density").hide();
+            });
+
+            $(".result").on('change', 'div#map_handler', function() {
+              $("#map_download_link").attr("download", $("#local_map_name").val());
             });
         });
     </script>

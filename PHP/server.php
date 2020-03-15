@@ -202,7 +202,8 @@
         //for($i = 1; $i <= $num_times;$i++) {
         //    echo("<img src='../MAPS/gif/out".$i.".png?dummy=".$dum."'/>");
         //}
-        echo("<img src='../MAPS/".$_POST["uid"]."/gif/output.gif?dummy=".$dum."'/>");
+        $img_path = "../MAPS/".$_POST["uid"]."/gif/output.gif?dummy=".$dum;
+        echo("<div id='map_handler'><img class=map src='".$img_path."'/></div>");
         $msc = microtime(true)-$msc;
         if ($_POST['lang'] == 'russian')
             echo("<p>Примерное время обработки запроса: ".round($msc, 3)." cек. </p>");
