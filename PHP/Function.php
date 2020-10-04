@@ -52,7 +52,7 @@ $EDataCols = array(
 
 $FullTables = array(
         array(
-            "METEO_DATA_2017_WSNOW",
+            "METEO_DATA_WSNOW_COPY",
             "метеоданные", 
             array("DAYS", "REGION", "IND", "LAT", "LON", "TMIN", "TMEAN", "TMAX", "R"),
             array("дата", "номер региона", "индекс станции", "широта", "долгота", "t минимальная", "t средняя", "t максимальная", "осадки")
@@ -252,8 +252,8 @@ function GenerateMeteoQuery($Data) {
                             $sqlquery .= ",\n\tB.".$Data[$Data["Groups"][$i]."List"][$j];
                 }
             for ($i = 0; $i < count($Data['Columns']); $i++) {
-                $sqlquery .= ",\n\t(B.n * B.sumXY".$i." - B.sumX * B.sumY".$i.") / (B.n * B.sumXX - B.sumX * B.sumX) AS \"";
-                $sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].").LRCOEFF\"";      
+                $sqlquery .= ",\n\t(B.n * B.sumXY".$i." - B.sumX * B.sumY".$i.") / (B.n * B.sumXX - B.sumX * B.sumX) AS '";
+                $sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].").LRCOEFF'";
         
             }   
             $sqlquery .= "\nFROM (";
@@ -263,25 +263,25 @@ function GenerateMeteoQuery($Data) {
         if(!empty($Data['Groups']))
             $k = 0;
             for ($i = 0; $i < count($Data['Groups']); $i++) {
-                $sqlquery .= $nl."\tA.G".$i.' AS "'.$Data["Groups"][$i].'",';
+                $sqlquery .= $nl."\tA.G".$i." AS '".$Data["Groups"][$i]."',";
                 if (!empty($Data[$Data["Groups"][$i]."List"]))
                     for ($j = 0; $j < count($Data[$Data["Groups"][$i].'List']); $j++) {
                         if ($Data["Groups"][$i] == "REGION") {
                             while ($Data[$Data["Groups"][$i].'List'][$j] != $Tables[$k][0] && $k < 10)
                                 $k++;
-                            $sqlquery .= $nl."\tE".$j.'.VALUE AS "'.$Tables[$k][0].'",';
+                            $sqlquery .= $nl."\tE".$j.".VALUE AS '".$Tables[$k][0]."',";
                         }
                         else if ($Data["Groups"][$i] == "IND")
-                            $sqlquery .= $nl."\tA.".$Data['INDList'][$j].' AS "'.$Data['INDList'][$j].'",';
+                            $sqlquery .= $nl."\tA.".$Data['INDList'][$j]." AS '".$Data['INDList'][$j]."',";
                     }           
             }
             
         if (!empty($Data["LR"])) {
-            $sqlquery .= "\n\t\tCOUNT(A.X) AS ".'"n"'.",\n\t\tSUM(A.X) AS ".'"sumX"'.",\n\t\tSUM(A.X * A.X) AS ".'"sumXX"';
+            $sqlquery .= "\n\t\tCOUNT(A.X) AS 'n'".",\n\t\tSUM(A.X) AS 'sumX'".",\n\t\tSUM(A.X * A.X) AS 'sumXX'";
             for ($i = 0; $i < count($Data['Columns']); $i++) {
-                $sqlquery .= ",\n\t\tSUM(A.Y".$i.') AS "sumY'.$i.'"';
-                $sqlquery .= ",\n\t\tSUM(A.Y".$i." * A.Y".$i.")  AS ".'"sumYY'.$i.'"';
-                $sqlquery .= ",\n\t\tSUM(A.X * A.Y".$i.") AS ".'"sumXY'.$i.'"';
+                $sqlquery .= ",\n\t\tSUM(A.Y".$i.") AS 'sumY".$i."'";
+                $sqlquery .= ",\n\t\tSUM(A.Y".$i." * A.Y".$i.")  AS  'sumYY".$i."'";
+                $sqlquery .= ",\n\t\tSUM(A.X * A.Y".$i.") AS 'sumXY".$i."'";
             }
         }
         else {
@@ -418,7 +418,7 @@ function GenerateEconomicQuery($Data, $j, $nl) {
         $subquery = "";
         for ($k = 0; $k < count($EDataCols[$j][0]) - 1; $k++) 
             if (!empty($Data[$Tables[$j][0].$EDataCols[$j][0][$k]]))
-                $subquery .= $EDataCols[$j][0][$k].' = "'.$Data[$Tables[$j][0].$EDataCols[$j][0][$k]].'"'.$nl."\tAND ";
+                $subquery .= $EDataCols[$j][0][$k]." = '".$Data[$Tables[$j][0].$EDataCols[$j][0][$k]]."'".$nl."\tAND ";
         if(!empty($Data[$Tables[$j][0]."YEARL"]))
             $subquery .= "YEAR >= ".$Data[$Tables[$j][0]."YEARL"].$nl."\tAND ";
         if(!empty($Data[$Tables[$j][0]."YEARR"]))
@@ -454,21 +454,21 @@ function GenerateCoreQuery($Data) {
     if (!empty($Data['Groups']))
         for ($i = 0; $i < count($Data['Groups']); $i++)
             if(!empty($Data["LR"]) || !empty($Data["REGIONList"]))
-                $sqlquery .= $Data["Groups"][$i].' AS "G'.$i.'",'.$nl."\t";
+                $sqlquery .= $Data["Groups"][$i]." AS 'G".$i."',".$nl."\t";
             else 
                 $sqlquery .= $Data["Groups"][$i].",".$nl."\t";
     if (!empty($Data["INDList"]))
         for ($i = 0; $i < count($Data['INDList']); $i++)
             $sqlquery .= $Data["INDList"][$i].",".$nl."\t";
     if (!empty($Data['LR']))
-            $sqlquery .= 'YEAR(DAYS) AS "X",'.$nl."\t";
+            $sqlquery .= "YEAR(DAYS) AS 'X',".$nl."\t";
     for ($i = 0; $i < count($Data['Columns']); $i++) {
         if (!empty($Data['Functions']))
             $sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].')';
         else 
             $sqlquery .= $Data['Columns'][$i];
         if (!empty($Data["LR"]) || !empty($Data["REGIONList"])) 
-            $sqlquery .= ' AS "Y'.$i.'",';
+            $sqlquery .= " AS 'Y".$i."',";
         else 
             $sqlquery .= ",";
         $sqlquery .= $nl."\t";
@@ -480,7 +480,7 @@ function GenerateCoreQuery($Data) {
     else if (!empty($Data["REGIONList"]))
         $sqlquery = substr($sqlquery, 0, -1);
         
-    $sqlquery .= $nl."FROM METEO_DATA_2017_WSNOW";
+    $sqlquery .= $nl."FROM METEO_DATA_WSNOW_COPY";
     $Limits = array();
     $k = 0;
     if ($Data['DateType'] == "method1") {
@@ -576,13 +576,13 @@ function GenerateCoreQuery($Data) {
     
 function ConnectDB($DB) {
     $servername = "localhost";
-    $json_string = file_get_contents("/var/www/193-124-206-5.cloudvps.regruhosting.ru/mysql.json");
+    $json_string = file_get_contents("/var/www/194-67-110-162.cloudvps.regruhosting.ru/mysql.json");
     $credentials = json_decode($json_string, true);
     $username = $credentials["username"];
     $password = $credentials["password"];
     $conn = new mysqli($servername, $username, $password);
     if ($conn->connect_error) 
-    die("Connection failed: " . $conn->connect_error);
+        die("Connection failed: " . $conn->connect_error);
 
     if (!$conn->set_charset("utf8")) {
         echo("Error uploading utf8 charset".$conn->error);
