@@ -501,7 +501,7 @@ function fillForm(){
 	
 	for (i = 0; i < functions.length; i++) {
 		var curFnc = functions[i][0];
-		text += "<input type = 'checkbox'           class = 'METEO_DATA_2015_WREGIONS functions'    id = '"  + curFnc +    "'  name = 'Functions[]'         value = '" + curFnc + "'>"
+		text += "<input type = 'checkbox'           class = 'METEO_DATA functions'    id = '"  + curFnc +    "'  name = 'Functions[]'         value = '" + curFnc + "'>"
 		text += "<label for = '" + curFnc + "'                                                      id = 'functions' ></label>"
 		text += "<br>"
 	}

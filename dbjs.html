@@ -26,14 +26,14 @@
             }
             var primaryTable = "MODEL_DATA";
             if (localStorage.getItem("db") == "stations_regions")
-                primaryTable = "METEO_DATA_2015_WREGIONS";
+                primaryTable = "METEO_DATA";
             $('select#chooseTable').on('change', function() {
                 $(".error").hide();
                 $("div.forTable").hide();
                 $(".result").hide();
                 primaryTable = this.value;
                 $("div#" + primaryTable).show();
-                if (primaryTable == "METEO_DATA_2015_WREGIONS")
+                if (primaryTable == "METEO_DATA")
                     $("div#maps").show();
                 else {
                     if (document.getElementById("map").checked == true) {
@@ -52,11 +52,11 @@
             $("input.functions").change(function(e) {
                 switch ($("input." + primaryTable +".functions:checked").length) {
                 case 1:
-                    if (primaryTable == "METEO_DATA_2015_WREGIONS")
+                    if (primaryTable == "METEO_DATA")
                         $(".withAd").fadeIn();
                     break;
                 case 0:
-                    if (primaryTable == "METEO_DATA_2015_WREGIONS") {
+                    if (primaryTable == "METEO_DATA") {
                         $(".withAd").fadeOut();
                         resetHiddenPart();
                     }
@@ -265,7 +265,7 @@
 <h1 id = dbname></h1>
 <form id = "Main">
     <fieldset    class  = "main"       id = "tables"></fieldset>
-    <div         class = "forTable"    id = "METEO_DATA_2015_WREGIONS">
+    <div         class = "forTable"    id = "METEO_DATA">
         <fieldset class  = "main"       id = 'filters'></fieldset>
         <fieldset class  = "main"       id = "functions"></fieldset>
         <fieldset class = "main withAd"                                                                         hidden>

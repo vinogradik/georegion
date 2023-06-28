@@ -12,7 +12,8 @@ var legendText = {
 
 //columns
 var date           = { Name: "DAYS",          RuName: "дата",                                         EnName: "date"}
-var region         = { Name: "REGION",        RuName: "номер региона",                                EnName: "region number"}
+var region         = { Name: "REGION",        RuName: "исторический номер региона",                   EnName: "historical region number"}
+var actual_region  = { Name: "ACTUAL_REGION", RuName: "актуальный номер региона",                     EnName: "actual region number"}
 var station        = { Name: "IND",           RuName: "индекс станции",                               EnName: "station index"}
 var lat            = { Name: "LAT",           RuName: "широта",                                       EnName: "latitude"}
 var lon            = { Name: "LON",           RuName: "долгота",                                      EnName: "longitude"}
@@ -129,10 +130,10 @@ var migration = {
 
 //tables
 var station_data = {
-	Name   : "METEO_DATA_2015_WREGIONS",
+	Name   : "METEO_DATA",
 	RuName : "метеоданные",
 	EnName : "meteodata", 
-	Cols   : [date, region, station, lat, lon, tmin, tmean, tmax, rain, clouds, windav, windmax, tground, pvapor, relhum, tdewpoint, pstnlvl, snowdepth]
+	Cols   : [date, region, actual_region, station, lat, lon, tmin, tmean, tmax, rain, clouds, windav, windmax, tground, pvapor, relhum, tdewpoint, pstnlvl, snowdepth]
 }
 
 var grid_data = {
@@ -241,8 +242,8 @@ var functions = [
 var groups = [
 	{
 		TbName:"REGION",
-		RuName:"регионы",
-		EnName:"regions",
+		RuName:"исторические регионы",
+		EnName:"historic regions",
 		TbCoParams:
 		[
 			"REGIONNAME",

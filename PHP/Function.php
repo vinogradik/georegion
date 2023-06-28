@@ -1,7 +1,8 @@
 <?php
 $Names = array(
         array("DAYS", "дата"),
-        array("REGION", "номер региона (в алфавитном порядке)"),
+        array("REGION", "исторический номер региона (в алфавитном порядке)"),
+        array("ACTUAL_REGION", "актуальный номер региона (в алфавитном порядке)"),
         array("IND", "индекс станции"),
         array("LAT", "широта"),
         array("LON", "долгота"),
@@ -52,10 +53,10 @@ $EDataCols = array(
 
 $FullTables = array(
         array(
-            "METEO_DATA_WSNOW_COPY",
+            "METEO_DATA_WSNOW_2022_ACTUAL_REGIONS",
             "метеоданные", 
-            array("DAYS", "REGION", "IND", "LAT", "LON", "TMIN", "TMEAN", "TMAX", "R"),
-            array("дата", "номер региона", "индекс станции", "широта", "долгота", "t минимальная", "t средняя", "t максимальная", "осадки")
+            array("DAYS", "REGION", "ACTUAL_REGION", "IND", "LAT", "LON", "TMIN", "TMEAN", "TMAX", "R"),
+            array("дата", "исторический номер региона", "актуальный номер региона", "индекс станции", "широта", "долгота", "t минимальная", "t средняя", "t максимальная", "осадки")
         ), 
         array(
             "GRID_DATA",
@@ -223,7 +224,7 @@ function ValidateForm($Data) {
 
 
 function GenerateQuery($Data){
-    if ($Data['primaryTabl'] == "METEO_DATA_2015_WREGIONS") 
+    if ($Data['primaryTabl'] == "METEO_DATA")
         return GenerateMeteoQuery($Data);
     if ($Data['primaryTabl'] == "GRID_DATA")
         return GenerateGridQuery($Data);
@@ -480,7 +481,7 @@ function GenerateCoreQuery($Data) {
     else if (!empty($Data["REGIONList"]))
         $sqlquery = substr($sqlquery, 0, -1);
         
-    $sqlquery .= $nl."FROM METEO_DATA_WSNOW_COPY";
+    $sqlquery .= $nl."FROM METEO_DATA_WSNOW_2022_ACTUAL_REGIONS";
     $Limits = array();
     $k = 0;
     if ($Data['DateType'] == "method1") {

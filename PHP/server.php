@@ -55,7 +55,7 @@
   				echo("<p>Approximate running time ".round($msc, 3)." s. </p>");
 		}
     	if(!$result)
-  			echo('<br>Query '.$sqlquery.' error<br>');
+  			echo('<br>Query '.$sqlquery.' '.mysqli_error($conn).' error<br>');
 		$conn->close();
 	}
 	else if ($_POST['extractType'] == 1) {
