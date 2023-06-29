@@ -294,6 +294,59 @@ var groups = [
 		]
 	},
 	{
+		TbName:"ACTUAL_REGION",
+		RuName:"актуальные регионы",
+		EnName:"actual regions",
+		TbCoParams:
+		[
+			"REGIONNAME",
+			"MIGRATION",
+			"MIGR_COEFF",
+			"NATINCREASE",
+			"OVERALLINCREASE",
+			"LIFETIME",
+			"NEONATMORTALITY",
+			"CHILDMORTALITY",
+			"DECEASEMORTALITY" 
+		], 
+		RuCoParams:
+		[
+			"название региона", 
+			"миграция",
+			"коэффициент миграции",
+			"естественный прирост",
+			"общий прирост",
+			"продолжительность жизни",
+			"неонатальная смертность",
+			"детская смертность",
+			"смертность от болезней"
+		],
+		EnCoParams:
+		[
+			"region name", 
+			"migration",
+			"migration coefficient",
+			"natural increase",
+			"total increase",
+			"lifetime",
+			"neonatal mortality",
+			"infant mortality",
+			"mortality from disease"
+		],
+		Limits:
+		[
+			[0, 0],
+			[1997, 2015],
+			[1997, 2015],
+			[1990, 2014],
+			[1990, 2014],
+			[1990, 2010],
+			[0, 0],
+			[2013, 2015],
+			[1990, 2012]
+		]
+	},
+	{
 		TbName:"IND",
 		RuName: "станции",
 		EnName: "stations",

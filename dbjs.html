@@ -37,8 +37,7 @@
                     $("div#maps").show();
                 else {
                     if (document.getElementById("map").checked == true) {
-                        document.getElementById("preview").checked = true;
-                        $("#TableSize").show();
+                        document.getElementById("dry_run").checked = true;
                         $("#map_params").hide();
                     }
                     $("div#maps").hide();
@@ -77,6 +76,18 @@
                         $("#" + groups[0].TbCoParams[j]).fadeIn();
                     else
                         $("#" + groups[0].TbCoParams[j]).fadeOut();
+                translateForm();
+            });
+            // TODO: do not duplicate code and do not rely on groups order!
+            $(document).on('change', 'input.ACTUAL_REGIONList', function(){
+                var j = 0;
+                while (this.value != groups[1].TbCoParams[j])
+                    j++;
+                if (j > 0)
+                    if (this.checked)
+                        $("#" + groups[1].TbCoParams[j]).fadeIn();
+                    else
+                        $("#" + groups[1].TbCoParams[j]).fadeOut();
                 translateForm();
             });
             $(document).on('change', 'input.INDList', function(){
@@ -140,9 +151,14 @@
                 }
             });
             $("input[name = extractType]").change(function(){
-                if ($("input[name = extractType]:checked").val() == 0) {
+                if ($("input[name = extractType]:checked").val() == -1) {
                     $("#filename").hide();
-                    $("#TableSize").fadeIn  ();
+                    $("#TableSize").hide();
+                    $("#map_params").hide();
+                }
+                else if ($("input[name = extractType]:checked").val() == 0) {
+                    $("#filename").hide();
+                    $("#TableSize").fadeIn();
                     $("#map_params").hide();
                 }
                 else if ($("input[name = extractType]:checked").val() == 1){
@@ -278,6 +294,10 @@
     <div                               id = "otherTables"></div>
     <fieldset class  = "main">
         <legend                         id = "Output"></legend>
+        <p>
+            <input type = "radio"        id = "dry_run"   name = "extractType" value = "-1"  autocomplete = "off">
+            <label for = "dry_run"       id = "dry_run"></label>
+        </p>
         <p>
             <input type = "radio"        id = "preview"   name = "extractType" value = "0"  autocomplete = "off" checked>
             <label for = "preview"       id = "preview"></label>

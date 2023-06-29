@@ -1,5 +1,6 @@
-var FormSerialised = ["","","",""];
-var AdFormData = [{}, {}, {}, {}];
+// TODO make length equal to length of groups
+var FormSerialised = Array(5).fill("");
+var AdFormData = Array(5).fill({});
 
 function getFormDataArray(form) {
 	var dataArray = $(form).serializeArray(),
@@ -72,12 +73,15 @@ function ValidateFormJS(primaryTable) {
 }
 
 function ValidateAdFormJS(i) {
-	if (i != 0)
+	// TODO: do not rely on groups order
+	if (i > 1)
 		return -1;
-	for (j = 1; j < groups[0].TbCoParams.length; j++){ 
-		if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARL"])  
-			&& !isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARR"])
-			&& +AdFormData[0][groups[0].TbCoParams[j] + "YEARL"] > +AdFormData[0][groups[0].TbCoParams[j] + "YEARR"]) 
+	var TbCoParams = groups[i].TbCoParams;
+	for (j = 1; j < TbCoParams.length; j++){ 
+		var tbCoParam = TbCoParams[j];
+		if (!isEmpty(AdFormData[i][tbCoParam + "YEARL"])  
+			&& !isEmpty(AdFormData[i][tbCoParam + "YEARR"])
+			&& +AdFormData[i][tbCoParam + "YEARL"] > +AdFormData[i][tbCoParam + "YEARR"]) 
 				return j;
 	}
 	return -1;	
@@ -103,33 +107,37 @@ function customDialog(i) {
 	var tables = databases[1].slice();
 	if (localStorage.getItem("db") == "stations_regions")
 		tables = databases[0].slice();
-   if (i < 2) {
+	// TODO: do not rely on groups order
+    if (i < 3) {
  		var s = 0;
-		var str = "<form  class = 'AdForm' id='" + groups[i].TbName + "'>";
-		for (j = 0; j < groups[i].TbCoParams.length; j++){ 
-			str += "<p><input type = 'checkbox' class = '" + groups[i].TbName + "List' name = '" + groups[i].TbName + "List[]' value= '" 
-				+ groups[i].TbCoParams[j] + "'";
+		var tbName = groups[i].TbName;
+		var str = "<form  class = 'AdForm' id='" + tbName + "'>";
+		for (j = 0; j < groups[i].TbCoParams.length; j++){
+			var tbCoParam = groups[i].TbCoParams[j];
+			str += "<p><input type = 'checkbox' class = '" + tbName + "List' name = '" + tbName + "List[]' value= '" 
+				+ tbCoParam + "'";
 			var hidden = " hidden ";
-			if (!isEmpty(AdFormData[i][groups[i].TbName + "List[]"]) && AdFormData[i][groups[i].TbName + "List[]"][s] == groups[i].TbCoParams[j]) {
+			if (!isEmpty(AdFormData[i][tbName + "List[]"]) && AdFormData[i][tbName + "List[]"][s] == groups[i].TbCoParams[j]) {
 				str += " checked ";
 				hidden = "";
 				s++;
 			}
 			str += ">"
 			str +=  "<label for = '' id = 'GroupLists'></label></p>"
-			if (j > 0 && i == 0) {
-				str += "<div id = '" + groups[0].TbCoParams[j] + "'" + hidden +">";
+			// TODO: rely on group attributes not on their order
+			if (j > 0 && i < 2) {
+				str += "<div id = '" + tbCoParam + "'" + hidden +">";
 				str += "<fieldset class = 'regionsGrouping'><legend id = 'Functions'></legend>";
-				str += "<input type = 'radio' name = '" + groups[0].TbCoParams[j] + "Function[]' class = 'REGIONFunctions' value = 'DEFAULT' id = 'DEFAULT'";
-				if (isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "Function[]"]) 
-					|| (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "Function[]"]) && AdFormData[0][groups[0].TbCoParams[j] + "Function[]"][0] == "DEFAULT")) 
+				str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = 'REGIONFunctions' value = 'DEFAULT' id = 'DEFAULT'";
+				if (isEmpty(AdFormData[i][tbCoParam + "Function[]"]) 
+					|| (!isEmpty(AdFormData[i][tbCoParam + "Function[]"]) && AdFormData[i][tbCoParam + "Function[]"][0] == "DEFAULT")) 
 					str += " checked ";				
 				str += ">"
 				str += "<label for = 'DEFAULT' id = 'DEFAULT'></label></br>";					
 				for (k = 0; k < functions.length; k++) {
-					str += "<input type = 'radio' name = '" + groups[0].TbCoParams[j] + "Function[]' class = 'REGIONFunctions' value = '" 
+					str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = 'REGIONFunctions' value = '" 
 						+ functions[k][0] + "' id = '"+ functions[k][0] + "'";
-					if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "Function[]"]) && AdFormData[0][groups[0].TbCoParams[j] + "Function[]"][0] == functions[k][0]) 
+					if (!isEmpty(AdFormData[i][tbCoParam + "Function[]"]) && AdFormData[i][tbCoParam + "Function[]"][0] == functions[k][0]) 
 						str += " checked ";	
 					str += ">"
 					str += "<label for = '" + functions[k][0] + "' id = 'functions'></label></br>";	
@@ -143,9 +151,9 @@ function customDialog(i) {
 					str += "</fieldset><fieldset class = 'regionsGrouping'><legend id = 'FiltersShort'></legend>";
 					for (k = 0; k < EDataCols[j][0].length - 1; k++) {
 						var selected = "";
-						str += "<p><select  class = 'CustomDialogSelect' name = '" + groups[0].TbCoParams[j] + EDataCols[j][0][k] + "'>";
+						str += "<p><select  class = 'CustomDialogSelect' name = '" + tbCoParam + EDataCols[j][0][k] + "'>";
 						for (l = 0; l < EDataCols[j][1][k].length; l++) {
-							if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + EDataCols[j][0][k]]) && AdFormData[0][groups[0].TbCoParams[j] + EDataCols[j][0][k]] == EDataCols[j][1][k][l])
+							if (!isEmpty(AdFormData[i][tbCoParam + EDataCols[j][0][k]]) && AdFormData[i][tbCoParam + EDataCols[j][0][k]] == EDataCols[j][1][k][l])
 								selected  = " selected='selected' ";
 							else 
 								selected  = "";
@@ -155,15 +163,15 @@ function customDialog(i) {
    				}
    				var yearValueL = "";
    				var yearValueR = "";
-   				if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARL"])) 
-   					yearValueL = " value = " + AdFormData[0][groups[0].TbCoParams[j] + "YEARL"];
-   				if (!isEmpty(AdFormData[0][groups[0].TbCoParams[j] + "YEARR"])) 
-						yearValueR = " value = " + AdFormData[0][groups[0].TbCoParams[j] + "YEARR"];   				
+   				if (!isEmpty(AdFormData[i][tbCoParam + "YEARL"])) 
+   					yearValueL = " value = " + AdFormData[i][tbCoParam + "YEARL"];
+   				if (!isEmpty(AdFormData[i][tbCoParam + "YEARR"])) 
+						yearValueR = " value = " + AdFormData[i][tbCoParam + "YEARR"];   				
    				str += "<p>";
-   				str += "<label  for = 'l" + groups[0].TbCoParams[j] + "YEAR'  class = 'from'></label>"
-					str += "<input type='number'  step = '1' min = '" + groups[0].Limits[j][0] + "' max = '" + groups[0].Limits[j][1] + "' lang = 'eng' placeholder = 'min' name = '" + groups[0].TbCoParams[j] + "YEARL' id = 'l" + groups[0].TbCoParams[j] + "YEAR'" +  yearValueL + "> "; 
-					str += "<label  for = 'r" + groups[0].TbCoParams[j] + "YEAR'  class = 'to'></label>"
-					str += "<input type='number'  step = '1' min = '"+ groups[0].Limits[j][0] + "' max = '" + groups[0].Limits[j][1] + "' lang = 'eng' placeholder = 'max' name = '" + groups[0].TbCoParams[j] + "YEARR' id = 'r" + groups[0].TbCoParams[j] + "YEAR'" + yearValueR + "> ";
+   				str += "<label  for = 'l" + tbCoParam + "YEAR'  class = 'from'></label>"
+					str += "<input type='number'  step = '1' min = '" + groups[i].Limits[j][0] + "' max = '" + groups[i].Limits[j][1] + "' lang = 'eng' placeholder = 'min' name = '" + tbCoParam + "YEARL' id = 'l" + tbCoParam + "YEAR'" +  yearValueL + "> "; 
+					str += "<label  for = 'r" + tbCoParam + "YEAR'  class = 'to'></label>"
+					str += "<input type='number'  step = '1' min = '"+ groups[i].Limits[j][0] + "' max = '" + groups[i].Limits[j][1] + "' lang = 'eng' placeholder = 'max' name = '" + tbCoParam + "YEARR' id = 'r" + tbCoParam + "YEAR'" + yearValueR + "> ";
    				str += "<label id = 'CustomDialogYears'></label></p></fieldset>";						
 				}
 				str += "</div>";
@@ -312,6 +320,8 @@ function translateForm(){
 	}
 	
 	//group lists in custom dialog
+	// TODO: make more robust mechanism for dialog translation
+	// No it relies on number of params in groupList which is error prone
 	var groupLists = $("label#GroupLists")
 	if (groupLists.length == 9)
 		for (j = 0; j < 9; j++){
@@ -335,8 +345,8 @@ function translateForm(){
 	for (i = 0; i < customDialogYears.length; i++) 
 		customDialogYears[i].innerHTML = patch
 		
-
-	for (i = 0; i < 2; i++) {
+	// TODO: do not rely on groups order!
+	for (i = 0; i < 3; i++) {
 		if ($("input#Group" + groups[i].TbName).is(':checked')) {
 			s = 0
 			str = ""
@@ -370,6 +380,7 @@ function translateForm(){
 	if (lang == "english"){
 		document.title = "Database"
 		$("label#LR").text("count angular coefficient of the trend line");
+		$("label#dry_run").text("dry run");
 		$("label#preview").text("preview");
 		$("label#map").text("create map");
 		$("label#output").text("output into file");
@@ -396,6 +407,7 @@ function translateForm(){
 	else{
 		document.title = "База данных"
 		$("label#LR").text("посчитать коэффициент наклона линии тренда");
+		$("label#dry_run").text("сухой запуск");
 		$("label#preview").text("предпросмотр");
 		$("label#output").text("вывод в файл");
 		$("label#map").text("создать карту");
@@ -518,7 +530,8 @@ function fillForm(){
 		
 		//groups without lists
 		notLR = "";
-		if (i > 1)
+		// TODO: do not rely on groups order!
+		if (i > 2)
 			notLR = "notLR";
 		
 		text += "<p                                 class = '" + notLR + "'>"
