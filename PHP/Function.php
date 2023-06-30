@@ -268,18 +268,19 @@ function GenerateMeteoQuery($Data) {
             if (!empty($Data[$groupName."List"]))
                 for ($j = 0; $j < count($Data[$groupName.'List']); $j++) {
                     if ($groupName == "REGION") {
+                        // TODO: rewrite using for  and length of $Tables instead of hardcoded 10
                         $k = 0;
                         while ($Data[$groupName.'List'][$j] != $Tables[$k][0] && $k < 10) {
                             $k++;
                         }
-                        $sqlquery .= $nl."\tER".$j.".VALUE AS 'AR_".$Tables[$k][0]."',";
+                        $sqlquery .= $nl."\tER".$j.".VALUE AS 'R_".$Tables[$k][0]."',";
                     }
                     if ($groupName == "ACTUAL_REGION") {
                         $k = 0;
                         while ($Data[$groupName.'List'][$j] != $Tables[$k][0] && $k < 10) {
                             $k++;
                         }
-                        $sqlquery .= $nl."\tEAR".$j.".VALUE AS 'R_".$Tables[$k][0]."',";
+                        $sqlquery .= $nl."\tEAR".$j.".VALUE AS 'AR_".$Tables[$k][0]."',";
                     }
                     else if ($groupName == "IND")
                         $sqlquery .= $nl."\tA.".$Data['INDList'][$j]." AS '".$Data['INDList'][$j]."',";
