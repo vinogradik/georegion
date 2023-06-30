@@ -126,18 +126,19 @@ function customDialog(i) {
 			str +=  "<label for = '' id = 'GroupLists'></label></p>"
 			// TODO: rely on group attributes not on their order
 			if (j > 0 && i < 2) {
+				functionName = tbName + "_" + tbCoParam + "_Function[]";
 				str += "<div id = '" + tbCoParam + "'" + hidden +">";
 				str += "<fieldset class = 'regionsGrouping'><legend id = 'Functions'></legend>";
-				str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = '" + tbName + "Functions' value = 'DEFAULT' id = 'DEFAULT'";
-				if (isEmpty(AdFormData[i][tbCoParam + "Function[]"]) 
-					|| (!isEmpty(AdFormData[i][tbCoParam + "Function[]"]) && AdFormData[i][tbCoParam + "Function[]"][0] == "DEFAULT")) 
+				str += "<input type = 'radio' name = '" + functionName + "' class = '" + tbName + "Functions' value = 'DEFAULT' id = 'DEFAULT'";
+				if (isEmpty(AdFormData[i][functionName])
+					|| (!isEmpty(AdFormData[i][functionName]) && AdFormData[i][functionName][0] == "DEFAULT"))
 					str += " checked ";				
 				str += ">"
 				str += "<label for = 'DEFAULT' id = 'DEFAULT'></label></br>";					
 				for (k = 0; k < functions.length; k++) {
-					str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = '" + tbName + "Functions' value = '"
+					str += "<input type = 'radio' name = '" + functionName + "' class = '" + tbName + "Functions' value = '"
 						+ functions[k][0] + "' id = '"+ functions[k][0] + "'";
-					if (!isEmpty(AdFormData[i][tbCoParam + "Function[]"]) && AdFormData[i][tbCoParam + "Function[]"][0] == functions[k][0]) 
+					if (!isEmpty(AdFormData[i][functionName]) && AdFormData[i][functionName][0] == functions[k][0])
 						str += " checked ";	
 					str += ">"
 					str += "<label for = '" + functions[k][0] + "' id = 'functions'></label></br>";	
@@ -148,9 +149,10 @@ function customDialog(i) {
 					str += "</fieldset><fieldset class = 'regionsGrouping'><legend id = 'FiltersShort'></legend>";
 					for (k = 0; k < EDataCols[j][0].length - 1; k++) {
 						var selected = "";
-						str += "<p><select  class = 'CustomDialogSelect' name = '" + tbCoParam + EDataCols[j][0][k] + "'>";
+						var filterName = tbName + "_" + tbCoParam + "_" + EDataCols[j][0][k];
+						str += "<p><select  class = 'CustomDialogSelect' name = '" + filterName + "'>";
 						for (l = 0; l < EDataCols[j][1][k].length; l++) {
-							if (!isEmpty(AdFormData[i][tbCoParam + EDataCols[j][0][k]]) && AdFormData[i][tbCoParam + EDataCols[j][0][k]] == EDataCols[j][1][k][l])
+							if (!isEmpty(AdFormData[i][filterName]) && AdFormData[i][filterName] == EDataCols[j][1][k][l])
 								selected  = " selected='selected' ";
 							else 
 								selected  = "";
@@ -160,15 +162,17 @@ function customDialog(i) {
    				}
    				var yearValueL = "";
    				var yearValueR = "";
-   				if (!isEmpty(AdFormData[i][tbCoParam + "YEARL"])) 
-   					yearValueL = " value = " + AdFormData[i][tbCoParam + "YEARL"];
-   				if (!isEmpty(AdFormData[i][tbCoParam + "YEARR"])) 
-						yearValueR = " value = " + AdFormData[i][tbCoParam + "YEARR"];   				
+				var yearFilterNameL = tbName + "_" + tbCoParam + "_YEARL";
+				var yearFilterNameR = tbName + "_" + tbCoParam + "_YEARR";
+   				if (!isEmpty(AdFormData[i][yearFilterNameL]))
+   					yearValueL = " value = " + AdFormData[i][yearFilterNameL];
+   				if (!isEmpty(AdFormData[i][yearFilterNameR]))
+						yearValueR = " value = " + AdFormData[i][yearFilterNameR];
    				str += "<p>";
-   				str += "<label  for = 'l" + tbCoParam + "YEAR'  class = 'from'></label>"
-					str += "<input type='number'  step = '1' min = '" + groups[i].Limits[j][0] + "' max = '" + groups[i].Limits[j][1] + "' lang = 'eng' placeholder = 'min' name = '" + tbCoParam + "YEARL' id = 'l" + tbCoParam + "YEAR'" +  yearValueL + "> "; 
-					str += "<label  for = 'r" + tbCoParam + "YEAR'  class = 'to'></label>"
-					str += "<input type='number'  step = '1' min = '"+ groups[i].Limits[j][0] + "' max = '" + groups[i].Limits[j][1] + "' lang = 'eng' placeholder = 'max' name = '" + tbCoParam + "YEARR' id = 'r" + tbCoParam + "YEAR'" + yearValueR + "> ";
+   				str += "<label  for = 'l" + tbCoParam + "YEAR'  class = 'from'></label>";
+				str += "<input type='number'  step = '1' min = '" + groups[i].Limits[j][0] + "' max = '" + groups[i].Limits[j][1] + "' lang = 'eng' placeholder = 'min' name = '" + yearFilterNameL + "' id = 'l" + tbCoParam + "YEAR'" +  yearValueL + "> ";
+				str += "<label  for = 'r" + tbCoParam + "YEAR'  class = 'to'></label>";
+				str += "<input type='number'  step = '1' min = '"+ groups[i].Limits[j][0] + "' max = '" + groups[i].Limits[j][1] + "' lang = 'eng' placeholder = 'max' name = '" + yearFilterNameR + "' id = 'r" + tbCoParam + "YEAR'" + yearValueR + "> ";
    				str += "<label id = 'CustomDialogYears'></label></p></fieldset>";						
 				}
 				str += "</div>";

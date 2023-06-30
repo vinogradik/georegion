@@ -198,6 +198,7 @@
                             $("body").append("<iframe src='MAPS/" + localStorage['user_id'] + "/DownloadCSV.php' style='display: none;' ></iframe>");
                         $(".modal").hide();
                         $(".result").html(retData);
+                        // TODO: fix google code prettify not working
                         prettyPrint();
                         if ($("input[name = extractType]:checked").val() == 2)
                             addDownloadBtn();
