@@ -2,14 +2,21 @@
 	include "Function.php";
 	$sqlquery = GenerateQuery($_POST);
     $msc = microtime(true);
-	if ($_POST['extractType'] == 0) {
+    if ($_POST['extractType'] == -1) {
+        if ($_POST['lang'] == "russian")
+            echo("<h3> Ваш SQL запрос: </h3>");
+        else
+            echo("<h3> Your query: </h3>");
+        echo("<pre class = 'prettyprint linenums lang-sql'>".$sqlquery.";</pre>");
+    }
+	else if ($_POST['extractType'] == 0) {
 		$sqlquery .= "\nLIMIT ".$_POST['TableSize'];
 		
 		if ($_POST['lang'] == "russian")
 			echo("<h3> Ваш SQL запрос: </h3>");
 		else
 			 echo("<h3> Your query: </h3>");
-		echo("<pre class = 'prettyprint linenums lang-sql'>".$sqlquery.";</pre>");	
+		echo("<pre class = 'prettyprint linenums lang-sql'>".$sqlquery.";</pre>");
 
    	    $conn = ConnectDB($_POST["db"]);
         ini_set("SQL_BIG_SELECTS", 1);
@@ -55,7 +62,7 @@
   				echo("<p>Approximate running time ".round($msc, 3)." s. </p>");
 		}
     	if(!$result)
-  			echo('<br>Query '.$sqlquery.' error<br>');
+  			echo('<br>Query '.$sqlquery.' '.mysqli_error($conn).' error<br>');
 		$conn->close();
 	}
 	else if ($_POST['extractType'] == 1) {

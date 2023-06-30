@@ -1,7 +1,8 @@
 <?php
 $Names = array(
         array("DAYS", "дата"),
-        array("REGION", "номер региона (в алфавитном порядке)"),
+        array("REGION", "исторический номер региона (в алфавитном порядке)"),
+        array("ACTUAL_REGION", "актуальный номер региона (в алфавитном порядке)"),
         array("IND", "индекс станции"),
         array("LAT", "широта"),
         array("LON", "долгота"),
@@ -52,10 +53,10 @@ $EDataCols = array(
 
 $FullTables = array(
         array(
-            "METEO_DATA_WSNOW_COPY",
+            "METEO_DATA_WSNOW_2022_ACTUAL_REGIONS",
             "метеоданные", 
-            array("DAYS", "REGION", "IND", "LAT", "LON", "TMIN", "TMEAN", "TMAX", "R"),
-            array("дата", "номер региона", "индекс станции", "широта", "долгота", "t минимальная", "t средняя", "t максимальная", "осадки")
+            array("DAYS", "REGION", "ACTUAL_REGION", "IND", "LAT", "LON", "TMIN", "TMEAN", "TMAX", "R"),
+            array("дата", "исторический номер региона", "актуальный номер региона", "индекс станции", "широта", "долгота", "t минимальная", "t средняя", "t максимальная", "осадки")
         ), 
         array(
             "GRID_DATA",
@@ -223,7 +224,7 @@ function ValidateForm($Data) {
 
 
 function GenerateQuery($Data){
-    if ($Data['primaryTabl'] == "METEO_DATA_2015_WREGIONS") 
+    if ($Data['primaryTabl'] == "METEO_DATA")
         return GenerateMeteoQuery($Data);
     if ($Data['primaryTabl'] == "GRID_DATA")
         return GenerateGridQuery($Data);
@@ -238,92 +239,114 @@ function GenerateMeteoQuery($Data) {
     $nl = "\n";
     $sqlquery = "";
     $innerquery = GenerateCoreQuery($Data);
-    if (empty($Data["LR"]) && empty($Data["REGIONList"]))
-        $sqlquery = $innerquery;
-    else {
-        if (!empty($Data["LR"])) {
-            $nl = "\n\t";
-            $sqlquery = "SELECT B.n"; 
-            if(!empty($Data['Groups']))
-                for ($i = 0; $i < count($Data['Groups']); $i++) {
-                    $sqlquery .= ",\n\tB.".$Data["Groups"][$i];
-                    if (!empty($Data[$Data["Groups"][$i]."List"]))
-                        for ($j = 0; $j < count($Data[$Data["Groups"][$i].'List']); $j++)
-                            $sqlquery .= ",\n\tB.".$Data[$Data["Groups"][$i]."List"][$j];
-                }
-            for ($i = 0; $i < count($Data['Columns']); $i++) {
-                $sqlquery .= ",\n\t(B.n * B.sumXY".$i." - B.sumX * B.sumY".$i.") / (B.n * B.sumXX - B.sumX * B.sumX) AS '";
-                $sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].").LRCOEFF'";
-        
-            }   
-            $sqlquery .= "\nFROM (";
-        }
-        $sqlquery .= $nl."SELECT";
-        
+    if (empty($Data["LR"]) && empty($Data["REGIONList"]) && empty($Data["ACTUAL_REGIONList"]))
+        return $innerquery;
+
+    if (!empty($Data["LR"])) {
+        $nl = "\n\t";
+        $sqlquery = "SELECT B.n"; 
         if(!empty($Data['Groups']))
-            $k = 0;
             for ($i = 0; $i < count($Data['Groups']); $i++) {
-                $sqlquery .= $nl."\tA.G".$i." AS '".$Data["Groups"][$i]."',";
+                $sqlquery .= ",\n\tB.".$Data["Groups"][$i];
                 if (!empty($Data[$Data["Groups"][$i]."List"]))
-                    for ($j = 0; $j < count($Data[$Data["Groups"][$i].'List']); $j++) {
-                        if ($Data["Groups"][$i] == "REGION") {
-                            while ($Data[$Data["Groups"][$i].'List'][$j] != $Tables[$k][0] && $k < 10)
-                                $k++;
-                            $sqlquery .= $nl."\tE".$j.".VALUE AS '".$Tables[$k][0]."',";
+                    for ($j = 0; $j < count($Data[$Data["Groups"][$i].'List']); $j++)
+                        $sqlquery .= ",\n\tB.".$Data[$Data["Groups"][$i]."List"][$j];
+            }
+        for ($i = 0; $i < count($Data['Columns']); $i++) {
+            $sqlquery .= ",\n\t(B.n * B.sumXY".$i." - B.sumX * B.sumY".$i.") / (B.n * B.sumXX - B.sumX * B.sumX) AS '";
+            $sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].").LRCOEFF'";
+        
+        }   
+        $sqlquery .= "\nFROM (";
+    }
+    $sqlquery .= $nl."SELECT";
+        
+    if(!empty($Data['Groups']))
+        for ($i = 0; $i < count($Data['Groups']); $i++) {
+            $groupName = $Data["Groups"][$i];
+            $sqlquery .= $nl."\tA.G".$i." AS '".$groupName."',";
+            if (!empty($Data[$groupName."List"]))
+                for ($j = 0; $j < count($Data[$groupName.'List']); $j++) {
+                    if ($groupName == "REGION") {
+                        $k = 0;
+                        while ($Data[$groupName.'List'][$j] != $Tables[$k][0] && $k < 10) {
+                            $k++;
                         }
-                        else if ($Data["Groups"][$i] == "IND")
-                            $sqlquery .= $nl."\tA.".$Data['INDList'][$j]." AS '".$Data['INDList'][$j]."',";
-                    }           
-            }
+                        $sqlquery .= $nl."\tER".$j.".VALUE AS 'AR_".$Tables[$k][0]."',";
+                    }
+                    if ($groupName == "ACTUAL_REGION") {
+                        $k = 0;
+                        while ($Data[$groupName.'List'][$j] != $Tables[$k][0] && $k < 10) {
+                            $k++;
+                        }
+                        $sqlquery .= $nl."\tEAR".$j.".VALUE AS 'R_".$Tables[$k][0]."',";
+                    }
+                    else if ($groupName == "IND")
+                        $sqlquery .= $nl."\tA.".$Data['INDList'][$j]." AS '".$Data['INDList'][$j]."',";
+                }           
+        }
+        
+    if (!empty($Data["LR"])) {
+        $sqlquery .= "\n\t\tCOUNT(A.X) AS 'n'".",\n\t\tSUM(A.X) AS 'sumX'".",\n\t\tSUM(A.X * A.X) AS 'sumXX'";
+        for ($i = 0; $i < count($Data['Columns']); $i++) {
+            $sqlquery .= ",\n\t\tSUM(A.Y".$i.") AS 'sumY".$i."'";
+            $sqlquery .= ",\n\t\tSUM(A.Y".$i." * A.Y".$i.")  AS  'sumYY".$i."'";
+            $sqlquery .= ",\n\t\tSUM(A.X * A.Y".$i.") AS 'sumXY".$i."'";
+        }
+    }
+    else {
+        $sqlquery = substr($sqlquery, 0, -1);
+        for ($i = 0; $i < count($Data['Columns']); $i++) {
+            $sqlquery .= ",".$nl."\tA.Y".$i." AS ";
+            if (!empty($Data["Functions"][0]))
+                $sqlquery .= '"'.$Data['Functions'][0].'('.$Data['Columns'][$i].')"';
+            else 
+                $sqlquery .= $Data['Columns'][$i];
+        }
+    }
+    $sqlquery .= $nl."FROM (".$innerquery.$nl.") AS A";
+    
+    if (!empty($Data['REGIONList'])) {
+        $j = 0;     
+        for ($i = 0; $i < count($Data['REGIONList']); $i++) {
+            while ($Data['REGIONList'][$i] != $Tables[$j][0])
+                $j++;
+            if ($j > 0)
+                $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t").$nl.") AS ER".$i;
+            else 
+                $sqlquery .= $nl."JOIN REGIONS AS ER0";
+            $sqlquery .= $nl."ON ER".$i.".REGION = A.G0";    
+        }
+    }
+
+    if (!empty($Data['ACTUAL_REGIONList'])) {
+        $j = 0;     
+        for ($i = 0; $i < count($Data['ACTUAL_REGIONList']); $i++) {
+            while ($Data['ACTUAL_REGIONList'][$i] != $Tables[$j][0])
+                $j++;
+            if ($j > 0)
+                $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t").$nl.") AS EAR".$i;
+            else 
+                $sqlquery .= $nl."JOIN REGIONS AS EAR0";
+
+            $sqlquery .= $nl."ON EAR".$i.".REGION = A.G1";    
+        }
+    }
+    
+    
             
-        if (!empty($Data["LR"])) {
-            $sqlquery .= "\n\t\tCOUNT(A.X) AS 'n'".",\n\t\tSUM(A.X) AS 'sumX'".",\n\t\tSUM(A.X * A.X) AS 'sumXX'";
-            for ($i = 0; $i < count($Data['Columns']); $i++) {
-                $sqlquery .= ",\n\t\tSUM(A.Y".$i.") AS 'sumY".$i."'";
-                $sqlquery .= ",\n\t\tSUM(A.Y".$i." * A.Y".$i.")  AS  'sumYY".$i."'";
-                $sqlquery .= ",\n\t\tSUM(A.X * A.Y".$i.") AS 'sumXY".$i."'";
-            }
+    if (!empty($Data["LR"])) {
+        $sqlquery .= $nl."WHERE A.Y0 IS NOT NULL";
+        for ($i = 1; $i < count($Data['Columns']); $i++) 
+            $sqlquery .= $nl."\tAND A.Y".$i." IS NOT NULL";
+        if(!empty($Data['Groups'])) {
+            $sqlquery .= $nl."GROUP BY ";
+            for ($i = 0; $i < count($Data['Groups']); $i++)
+                $sqlquery .= "A.G".$i.",\n\t";
+            $sqlquery = substr($sqlquery, 0, -3);
         }
-        else {
-            $sqlquery = substr($sqlquery, 0, -1);
-            for ($i = 0; $i < count($Data['Columns']); $i++) {
-                $sqlquery .= ",".$nl."\tA.Y".$i." AS ";
-                if (!empty($Data["Functions"][0]))
-                    $sqlquery .= '"'.$Data['Functions'][0].'('.$Data['Columns'][$i].')"';
-                else 
-                    $sqlquery .= $Data['Columns'][$i];
-            }
-        }
-        $sqlquery .= $nl."FROM (".$innerquery.$nl.") AS A";
-        
-        if (!empty($Data['REGIONList'])) {
-            $j = 0;     
-            for ($i = 0; $i < count($Data['REGIONList']); $i++) {
-                while ($Data['REGIONList'][$i] != $Tables[$j][0])
-                    $j++;
-                if ($j > 0)
-                    $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t").$nl.") AS E".$i;
-                else 
-                    $sqlquery .= $nl."JOIN REGIONS AS E0";
-                $sqlquery .= $nl."ON E".$i.".REGION = A.G0";    
-            }
-        }
-        
-        
-                
-        if (!empty($Data["LR"])) {
-            $sqlquery .= $nl."WHERE A.Y0 IS NOT NULL";
-            for ($i = 1; $i < count($Data['Columns']); $i++) 
-                $sqlquery .= $nl."\tAND A.Y".$i." IS NOT NULL";
-            if(!empty($Data['Groups'])) {
-                $sqlquery .= $nl."GROUP BY ";
-                for ($i = 0; $i < count($Data['Groups']); $i++)
-                    $sqlquery .= "A.G".$i.",\n\t";
-                $sqlquery = substr($sqlquery, 0, -3);
-            }
-            $sqlquery .= "\n) AS B";
-        }
-   }
+        $sqlquery .= "\n) AS B";
+    }
     
     return $sqlquery;
 }
@@ -446,14 +469,14 @@ function GenerateCoreQuery($Data) {
     $nl = "\n";
     if (!empty($Data["LR"]))
         $nl = "\n\t\t";
-    else if (!empty($Data["REGIONList"]))
+    else if (!empty($Data["REGIONList"]) || !empty($Data["ACTUAL_REGIONList"]))
         $nl = "\n\t";
         
     //Columns
     $sqlquery = $nl."SELECT ";
     if (!empty($Data['Groups']))
         for ($i = 0; $i < count($Data['Groups']); $i++)
-            if(!empty($Data["LR"]) || !empty($Data["REGIONList"]))
+            if(!empty($Data["LR"]) || !empty($Data["REGIONList"]) || !empty($Data["ACTUAL_REGIONList"]))
                 $sqlquery .= $Data["Groups"][$i]." AS 'G".$i."',".$nl."\t";
             else 
                 $sqlquery .= $Data["Groups"][$i].",".$nl."\t";
@@ -467,7 +490,7 @@ function GenerateCoreQuery($Data) {
             $sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].')';
         else 
             $sqlquery .= $Data['Columns'][$i];
-        if (!empty($Data["LR"]) || !empty($Data["REGIONList"])) 
+        if (!empty($Data["LR"]) || !empty($Data["REGIONList"]) || !empty($Data["ACTUAL_REGIONList"])) 
             $sqlquery .= " AS 'Y".$i."',";
         else 
             $sqlquery .= ",";
@@ -477,10 +500,10 @@ function GenerateCoreQuery($Data) {
     $sqlquery = substr($sqlquery, 0, -3);   
     if (!empty($Data["LR"]))
         $sqlquery = substr($sqlquery, 0, -2);
-    else if (!empty($Data["REGIONList"]))
+    else if (!empty($Data["REGIONList"]) || !empty($Data["ACTUAL_REGIONList"]))
         $sqlquery = substr($sqlquery, 0, -1);
         
-    $sqlquery .= $nl."FROM METEO_DATA_WSNOW_COPY";
+    $sqlquery .= $nl."FROM METEO_DATA_WSNOW_2022_ACTUAL_REGIONS";
     $Limits = array();
     $k = 0;
     if ($Data['DateType'] == "method1") {
@@ -610,10 +633,7 @@ function GenerateModelQuery($Data) {
             $sqlquery .= $Data['Functions'][0].'('.$Data['Columns'][$i].')';
         else 
             $sqlquery .= $Data['Columns'][$i];
-        if (!empty($Data["LR"]) || !empty($Data["REGIONList"])) 
-            $sqlquery .= ' AS "Y'.$i.'",';
-        else 
-            $sqlquery .= ",";
+        $sqlquery .= ",";
         $sqlquery .= $nl."\t";
     }
     
