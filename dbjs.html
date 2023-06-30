@@ -37,7 +37,8 @@
                     $("div#maps").show();
                 else {
                     if (document.getElementById("map").checked == true) {
-                        document.getElementById("dry_run").checked = true;
+                        document.getElementById("preview").checked = true;
+                        $("#TableSize").show();
                         $("#map_params").hide();
                     }
                     $("div#maps").hide();

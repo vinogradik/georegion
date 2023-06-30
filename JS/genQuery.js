@@ -128,23 +128,20 @@ function customDialog(i) {
 			if (j > 0 && i < 2) {
 				str += "<div id = '" + tbCoParam + "'" + hidden +">";
 				str += "<fieldset class = 'regionsGrouping'><legend id = 'Functions'></legend>";
-				str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = 'REGIONFunctions' value = 'DEFAULT' id = 'DEFAULT'";
+				str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = '" + tbName + "Functions' value = 'DEFAULT' id = 'DEFAULT'";
 				if (isEmpty(AdFormData[i][tbCoParam + "Function[]"]) 
 					|| (!isEmpty(AdFormData[i][tbCoParam + "Function[]"]) && AdFormData[i][tbCoParam + "Function[]"][0] == "DEFAULT")) 
 					str += " checked ";				
 				str += ">"
 				str += "<label for = 'DEFAULT' id = 'DEFAULT'></label></br>";					
 				for (k = 0; k < functions.length; k++) {
-					str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = 'REGIONFunctions' value = '" 
+					str += "<input type = 'radio' name = '" + tbCoParam + "Function[]' class = '" + tbName + "Functions' value = '"
 						+ functions[k][0] + "' id = '"+ functions[k][0] + "'";
 					if (!isEmpty(AdFormData[i][tbCoParam + "Function[]"]) && AdFormData[i][tbCoParam + "Function[]"][0] == functions[k][0]) 
 						str += " checked ";	
 					str += ">"
 					str += "<label for = '" + functions[k][0] + "' id = 'functions'></label></br>";	
-				}		
-				for ( k = 2; k < tables.length; k++){
-				
-				}				
+				}
 				
 				//filters
 				if (EDataCols[j][0].length > 0) {
