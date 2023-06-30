@@ -447,7 +447,6 @@ function GenerateEconomicQuery($Data, $j, $nl, $groupName) {
         for ($k = 0; $k < count($EDataCols[$j][0]) - 1; $k++) {
             $economicFilterKey = $groupName."_".$Tables[$j][0]."_".$EDataCols[$j][0][$k];
             $economicFilterName = $Data[$economicFilterKey];
-            # echo '<script>alert("'.$economicFilterKey.' '.$economicFilterName.'")</script>';
             if (!empty($economicFilterName))
                 $subquery .= $EDataCols[$j][0][$k]." = '".$economicFilterName."'".$nl."\tAND ";
         }
