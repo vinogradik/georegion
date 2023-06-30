@@ -314,7 +314,7 @@ function GenerateMeteoQuery($Data) {
             while ($Data['REGIONList'][$i] != $Tables[$j][0])
                 $j++;
             if ($j > 0)
-                $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t").$nl.") AS ER".$i;
+                $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t", "REGION").$nl.") AS ER".$i;
             else 
                 $sqlquery .= $nl."JOIN REGIONS AS ER0";
             $sqlquery .= $nl."ON ER".$i.".REGION = A.G".$groupNum;
@@ -328,7 +328,7 @@ function GenerateMeteoQuery($Data) {
             while ($Data['ACTUAL_REGIONList'][$i] != $Tables[$j][0])
                 $j++;
             if ($j > 0)
-                $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t").$nl.") AS EAR".$i;
+                $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t", "ACTUAL_REGION").$nl.") AS EAR".$i;
             else 
                 $sqlquery .= $nl."JOIN REGIONS AS EAR0";
 
@@ -431,24 +431,35 @@ function GenerateEcoQuery($Data) {
 
 
 
-function GenerateEconomicQuery($Data, $j, $nl) {
+function GenerateEconomicQuery($Data, $j, $nl, $groupName) {
     global $Tables;
     global $EDataCols;
     $query = $nl."SELECT REGION,".$nl."\t";
-    if ($Data[$Tables[$j][0]."Function"][0] == "DEFAULT")
+    $economicFunctionKey = $groupName."_".$Tables[$j][0]."_Function";
+    $economicFunctionName = $Data[$economicFunctionKey][0];
+    if ($economicFunctionName == "DEFAULT")
         $query .= "VALUE";
     else 
-        $query .= $Data[$Tables[$j][0]."Function"][0]."(VALUE) AS VALUE";
+        $query .= $economicFunctionName."(VALUE) AS VALUE";
     $query .= $nl."FROM ".$Tables[$j][1].$nl;
     if (!empty($EDataCols[$j])) {
         $subquery = "";
-        for ($k = 0; $k < count($EDataCols[$j][0]) - 1; $k++) 
-            if (!empty($Data[$Tables[$j][0].$EDataCols[$j][0][$k]]))
-                $subquery .= $EDataCols[$j][0][$k]." = '".$Data[$Tables[$j][0].$EDataCols[$j][0][$k]]."'".$nl."\tAND ";
-        if(!empty($Data[$Tables[$j][0]."YEARL"]))
-            $subquery .= "YEAR >= ".$Data[$Tables[$j][0]."YEARL"].$nl."\tAND ";
-        if(!empty($Data[$Tables[$j][0]."YEARR"]))
-            $subquery .= "YEAR <= ".$Data[$Tables[$j][0]."YEARR"].$nl."\tAND ";
+        for ($k = 0; $k < count($EDataCols[$j][0]) - 1; $k++) {
+            $economicFilterKey = $groupName."_".$Tables[$j][0]."_".$EDataCols[$j][0][$k];
+            $economicFilterName = $Data[$economicFilterKey];
+            # echo '<script>alert("'.$economicFilterKey.' '.$economicFilterName.'")</script>';
+            if (!empty($economicFilterName))
+                $subquery .= $EDataCols[$j][0][$k]." = '".$economicFilterName."'".$nl."\tAND ";
+        }
+        $lYearFilterKey =  $groupName."_".$Tables[$j][0]."_YEARL";
+        $lYearFilterValue = $Data[$lYearFilterKey];
+        if(!empty($lYearFilterValue))
+            $subquery .= "YEAR >= ".$lYearFilterValue.$nl."\tAND ";
+
+        $rYearFilterKey =  $groupName."_".$Tables[$j][0]."_YEARR";
+        $rYearFilterValue = $Data[$rYearFilterKey];
+        if(!empty($rYearFilterValue))
+            $subquery .= "YEAR <= ".$rYearFilterValue.$nl."\tAND ";
         if (!empty($subquery)) {
             $subquery  = "WHERE ".$subquery;
             $subquery = substr($subquery, 0, -5);
