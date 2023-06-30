@@ -307,6 +307,7 @@ function GenerateMeteoQuery($Data) {
     }
     $sqlquery .= $nl."FROM (".$innerquery.$nl.") AS A";
     
+    $groupNum = 0;
     if (!empty($Data['REGIONList'])) {
         $j = 0;     
         for ($i = 0; $i < count($Data['REGIONList']); $i++) {
@@ -316,8 +317,9 @@ function GenerateMeteoQuery($Data) {
                 $sqlquery .= $nl."JOIN (".GenerateEconomicQuery($Data, $j, $nl."\t").$nl.") AS ER".$i;
             else 
                 $sqlquery .= $nl."JOIN REGIONS AS ER0";
-            $sqlquery .= $nl."ON ER".$i.".REGION = A.G0";    
+            $sqlquery .= $nl."ON ER".$i.".REGION = A.G".$groupNum;
         }
+        ++$groupNum;
     }
 
     if (!empty($Data['ACTUAL_REGIONList'])) {
@@ -330,7 +332,7 @@ function GenerateMeteoQuery($Data) {
             else 
                 $sqlquery .= $nl."JOIN REGIONS AS EAR0";
 
-            $sqlquery .= $nl."ON EAR".$i.".REGION = A.G1";    
+            $sqlquery .= $nl."ON EAR".$i.".REGION = A.G".$groupNum;
         }
     }
     
