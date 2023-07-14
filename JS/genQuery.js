@@ -333,7 +333,7 @@ function translateForm(){
 		}
 	else if (groupLists.length == 2)
 		for (j = 0; j < 2; j++){
-			patch = groups[1].RuCoParams[j]
+			patch = groups[2].RuCoParams[j]
 			if (lang == "english")
 				patch = groups[1].EnCoParams[j]
 			groupLists[j].innerHTML = patch
